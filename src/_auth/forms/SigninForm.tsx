@@ -1,6 +1,6 @@
 import { CustomFormField, FormSubmitButton, Logo } from '@/components'
 import { Form } from '@/components/ui'
-import { SigninFormSchema, SignupFormSchema } from '@/lib/validations'
+import { SigninFormSchema } from '@/lib/validations'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'

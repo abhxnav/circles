@@ -6,8 +6,12 @@ import { SignupFormSchema } from '@/lib/validations'
 import { CustomFormField, FormSubmitButton, Logo } from '@/components'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { signUpUser } from '@/actions/auth.actions'
+import { useToast } from '@/hooks/use-toast'
 
 const SignupForm = () => {
+  const { toast } = useToast()
+
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof SignupFormSchema>>({
@@ -21,8 +25,24 @@ const SignupForm = () => {
   })
 
   const onSubmit = async (values: z.infer<typeof SignupFormSchema>) => {
-    // const newUser = await createUserAccount(values)
-    console.log('values', values)
+    setIsLoading(true)
+
+    try {
+      const { success, message } = await signUpUser(values)
+
+      if (!success) {
+        toast({ variant: 'destructive', description: message })
+        throw new Error(message)
+      }
+
+      form.reset() // Reset the form on success
+      toast({ description: message }) // Display success message
+    } catch (error: any) {
+      console.error('Error signing up: ', error.message)
+      toast({ variant: 'destructive', description: error.message })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

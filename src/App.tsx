@@ -3,9 +3,12 @@ import { Home } from '@/_root/pages'
 import { SigninForm, SignupForm } from '@/_auth/forms'
 import AuthLayout from '@/_auth/AuthLayout'
 import RootLayout from '@/_root/RootLayout'
-import './App.css'
+import '@/App.css'
+import useAuthListener from '@/hooks/useAuthListener'
 
 const App = () => {
+  useAuthListener()
+
   return (
     <main className="flex min-h-screen bg-dark-primary relative font-sans">
       <Routes>
