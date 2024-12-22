@@ -4,15 +4,14 @@ import { z } from 'zod'
 import { Form } from '@/components/ui'
 import { SignupFormSchema } from '@/lib/validations'
 import { CustomFormField, FormSubmitButton, Logo } from '@/components'
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { signUpUser } from '@/actions/auth.actions'
 import { useToast } from '@/hooks/use-toast'
+import { useSignUpUser } from '@/react-query/mutations'
 
 const SignupForm = () => {
   const { toast } = useToast()
 
-  const [isLoading, setIsLoading] = useState(false)
+  const { mutateAsync: signUpUser, isPending: isLoading } = useSignUpUser()
 
   const form = useForm<z.infer<typeof SignupFormSchema>>({
     resolver: zodResolver(SignupFormSchema),
@@ -25,8 +24,6 @@ const SignupForm = () => {
   })
 
   const onSubmit = async (values: z.infer<typeof SignupFormSchema>) => {
-    setIsLoading(true)
-
     try {
       const { success, message } = await signUpUser(values)
 
@@ -40,8 +37,6 @@ const SignupForm = () => {
     } catch (error: any) {
       console.error('Error signing up: ', error.message)
       toast({ variant: 'destructive', description: error.message })
-    } finally {
-      setIsLoading(false)
     }
   }
 

@@ -129,6 +129,7 @@ export const login = async (values: z.infer<typeof SigninFormSchema>) => {
   const { username, password } = values
 
   try {
+    // Retreive the email associated with the username
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('email')
@@ -136,22 +137,57 @@ export const login = async (values: z.infer<typeof SigninFormSchema>) => {
       .single()
 
     if (userError) {
-      throw new Error('Username not found')
+      if (userError.code === 'PGRST116') {
+        throw new Error('Username not found. Please check your credentials.')
+      }
+      throw new Error(userError.message)
     }
 
     const email = user.email
 
+    // Authenticate the user using email ans password
     const { error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (loginError) {
-      throw new Error('Invalid password')
-    }
+    if (loginError)
+      throw new Error('Login failed. Please check your credentials.')
 
-    return { success: true, message: 'Logged in successfully!' }
+    return { success: true, message: `Logged in successfully as ${username}` }
   } catch (error: any) {
+    console.error('Error logging in: ', error)
+    return {
+      success: false,
+      message: error.message || 'An error occurred during login.',
+    }
+  }
+}
+
+export const getCurrentUser = async () => {
+  try {
+    // Get currently logged in user from Auth
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+    if (error) throw new Error(error.message)
+
+    // Get currently logges in user's details from database
+    const { data: currentUser, error: fetchError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user?.id)
+      .single()
+    if (fetchError) throw new Error(fetchError.message)
+
+    return {
+      success: true,
+      message: 'User fetched successfully',
+      currentUser,
+    }
+  } catch (error: any) {
+    console.error('Error getting current user: ', error)
     return { success: false, message: error.message }
   }
 }

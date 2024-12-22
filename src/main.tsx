@@ -4,12 +4,18 @@ import '@/index.css'
 import App from '@/App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from '@/components/ui'
+import UserProvider from '@/context/UserContext'
+import QueryProvider from '@/react-query/QueryProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
-      <Toaster />
+      <QueryProvider>
+        <UserProvider>
+          <App />
+          <Toaster />
+        </UserProvider>
+      </QueryProvider>
     </BrowserRouter>
   </StrictMode>
 )

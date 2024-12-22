@@ -1,14 +1,18 @@
 import { CustomFormField, FormSubmitButton, Logo } from '@/components'
 import { Form } from '@/components/ui'
+import { useToast } from '@/hooks/use-toast'
 import { SigninFormSchema } from '@/lib/validations'
+import { useLogin } from '@/react-query/mutations'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 const SigninForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const navigate = useNavigate()
+
+  const { mutateAsync: login, isPending: isLoading } = useLogin()
 
   const form = useForm<z.infer<typeof SigninFormSchema>>({
     resolver: zodResolver(SigninFormSchema),
@@ -19,8 +23,20 @@ const SigninForm = () => {
   })
 
   const onSubmit = async (values: z.infer<typeof SigninFormSchema>) => {
-    // const newUser = await createUserAccount(values)
-    console.log('values', values)
+    try {
+      const { success, message } = await login(values)
+
+      if (!success) {
+        toast({ variant: 'destructive', description: message })
+        throw new Error(message)
+      }
+
+      navigate('/')
+      toast({ description: message })
+    } catch (error: any) {
+      console.error('Error logging in: ', error)
+      toast({ variant: 'destructive', description: error.message })
+    }
   }
 
   return (

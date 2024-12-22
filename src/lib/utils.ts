@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { envConfig } from './envConfig'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -34,4 +35,10 @@ export const generateAvatar = async (name: string): Promise<Blob> => {
       resolve(blob)
     })
   })
+}
+
+// Supabase by default stores the auth token in the local storage with the key 'sb-<project_id>-auth-token'
+export const getLocalStorageKey = () => {
+  const projectId = envConfig.supabase.supabaseProjectId
+  return `sb-${projectId}-auth-token`
 }
