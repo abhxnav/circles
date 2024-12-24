@@ -43,7 +43,7 @@ const SigninForm = () => {
     <Form {...form}>
       <div className="sm:w-[420px] flex flex-col items-center justify-center">
         <Logo className="h-20" />
-        <h2 className="text-2xl md:text-3xl font-bold pt-5 sm:pt-12 text-light-primary">
+        <h2 className="text-2xl md:text-3xl font-bold py-20 text-light-primary">
           Log into your account
         </h2>
         <form

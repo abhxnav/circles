@@ -8,8 +8,8 @@ import {
 } from '@/components/ui'
 import { Control, FieldValues, Path } from 'react-hook-form'
 import { useState } from 'react'
-import Eye from '@/assets/icons/eye.svg'
-import EyeSlash from '@/assets/icons/eye-slash.svg'
+import Eye from '/public/assets/icons/eye.svg'
+import EyeSlash from '/public/assets/icons/eye-slash.svg'
 
 interface CustomFormFieldProps<T extends FieldValues> {
   control: Control<T>
@@ -54,7 +54,11 @@ const CustomFormField = <T extends FieldValues>({
                   className="absolute top-0 right-0 bg-transparent translate-y-1 text-light-muted focus:outline-none hover:outline-none border-none"
                 >
                   <img
-                    src={isPasswordVisible ? EyeSlash : Eye}
+                    src={
+                      isPasswordVisible
+                        ? '/assets/icons/eye-slash.svg'
+                        : '/assets/icons/eye.svg'
+                    }
                     alt={isPasswordVisible ? 'Hide password' : 'Show password'}
                     className="size-5"
                   />

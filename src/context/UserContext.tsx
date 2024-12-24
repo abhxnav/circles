@@ -3,31 +3,12 @@ import { supabase } from '@/lib/supabase/config'
 import { getLocalStorageKey } from '@/lib/utils'
 import {
   createContext,
-  Dispatch,
   ReactNode,
   useContext,
   useEffect,
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-interface User {
-  id: string
-  name: string
-  username: string
-  email: string
-  avatar_url: string
-  createdAt: string
-}
-
-interface ContextType {
-  user: User
-  isLoading: boolean
-  isAuthenticated: boolean
-  setUser: Dispatch<React.SetStateAction<User>>
-  setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
-  checkAuthUser: () => Promise<boolean>
-}
 
 export const INITIAL_USER = {
   id: '',
@@ -47,7 +28,7 @@ const INITIAL_STATE = {
   checkAuthUser: async () => false as boolean,
 }
 
-const UserContext = createContext<ContextType>(INITIAL_STATE)
+const UserContext = createContext<UserContextType>(INITIAL_STATE)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate()

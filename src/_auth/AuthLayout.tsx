@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import Lottie, { LottieRefCurrentProps } from 'lottie-react'
-import AuthAnimation from '@/assets/animations/social-media-graphics.json'
+import AuthAnimation from '@/animations/social-media-graphics.json'
 import { useRef } from 'react'
 
 const AuthLayout = () => {

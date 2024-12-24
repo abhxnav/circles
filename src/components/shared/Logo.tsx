@@ -1,7 +1,4 @@
 import clsx from 'clsx'
-import FullLogo from '@/assets/logos/logo-full.png'
-import IconLogo from '@/assets/logos/logo-icon.png'
-import TextLogo from '@/assets/logos/logo-text.png'
 
 interface LogoProps {
   type?: 'full' | 'icon' | 'text'
@@ -12,13 +9,13 @@ const Logo = ({ type = 'full', className }: LogoProps) => {
   const getLogo = (type: LogoProps['type']) => {
     switch (type) {
       case 'full':
-        return FullLogo
+        return '/assets/logos/logo-full.png'
       case 'icon':
-        return IconLogo
+        return '/assets/logos/logo-icon.png'
       case 'text':
-        return TextLogo
+        return '/assets/logos/logo-text.png'
       default:
-        return FullLogo
+        return '/assets/logos/logo-full.png'
     }
   }
 
