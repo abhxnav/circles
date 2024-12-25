@@ -106,6 +106,7 @@ button:focus-visible {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -138,7 +139,16 @@ button:focus-visible {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.filter-accent {
+  filter: invert(69%) sepia(28%) saturate(4307%) hue-rotate(324deg) brightness(99%) contrast(104%);
+}
+
+.filter-white {
+  filter: invert(92%) sepia(99%) saturate(35%) hue-rotate(191deg) brightness(150%) contrast(99%);
 }
