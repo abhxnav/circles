@@ -44,3 +44,9 @@ export const SigninFormSchema = z.object({
       message: 'Password must contain at least one special character (@$!%*?&)',
     }),
 })
+
+export const PostFormSchema = z.object({
+  caption: z.string().min(1, { message: 'Caption is required' }),
+  image: z.union([z.array(z.instanceof(File)), z.string()]).optional(),
+  mentions: z.array(z.custom<User>()).optional(),
+})

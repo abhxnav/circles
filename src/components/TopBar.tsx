@@ -23,7 +23,7 @@ const TopBar = () => {
 
   return (
     <section className="sticky top-0 z-50 md:hidden bg-transparent w-full">
-      <div className="flex items-center justify-between py-4 px-5">
+      <div className="flex items-center justify-between py-4 px-5 bg-dark-primary">
         <Link to="/" className="flex gap-3 items-center">
           <div className="flex items-center gap-1">
             <Logo type="icon" className="h-5" />

@@ -51,7 +51,6 @@ export const signUpUser = async (values: z.infer<typeof SignupFormSchema>) => {
       message: `We have sent a verification email to ${email}. Verify your email to continue...`,
     }
   } catch (error: any) {
-    console.error('Error signing up: ', error)
     return {
       success: false,
       message: error.message || 'An error occurred during signup.',
@@ -120,7 +119,6 @@ export const addUserToDatabase = async () => {
 
     return { success: true, message: 'User profile created successfully.' }
   } catch (error: any) {
-    console.error('Error adding user to database: ', error)
     return { success: false, message: error.message }
   }
 }
@@ -156,7 +154,6 @@ export const login = async (values: z.infer<typeof SigninFormSchema>) => {
 
     return { success: true, message: `Logged in successfully as ${username}` }
   } catch (error: any) {
-    console.error('Error logging in: ', error)
     return {
       success: false,
       message: error.message || 'An error occurred during login.',
@@ -187,7 +184,6 @@ export const getCurrentUser = async () => {
       currentUser,
     }
   } catch (error: any) {
-    console.error('Error getting current user: ', error)
     return { success: false, message: error.message }
   }
 }

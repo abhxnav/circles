@@ -21,3 +21,12 @@ interface NavLink {
   route: string
   label: string
 }
+
+interface Post {
+  id: string
+  author_id: string
+  content: string
+  image_url: string
+  created_at: string
+  mentions: User[]
+}

@@ -52,16 +52,16 @@ const SigninForm = () => {
         >
           <CustomFormField
             control={form.control}
+            fieldType="text"
             name="username"
             label="Username"
-            type="text"
             placeholder="Enter your username"
           />
           <CustomFormField
             control={form.control}
+            fieldType="password"
             name="password"
             label="Password"
-            type="password"
             placeholder="Enter your password"
           />
           <FormSubmitButton
