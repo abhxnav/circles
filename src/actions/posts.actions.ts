@@ -23,3 +23,14 @@ export const uploadFileToSupabase = async (file: File) => {
     return { success: false, message: error.message }
   }
 }
+
+export const deleteFileFromSupabase = async (filePath: string) => {
+  try {
+    const { error } = await supabase.storage.from('posts').remove([filePath])
+    if (error) throw error
+    return { success: true, message: 'File deleted successfully' }
+  } catch (error: any) {
+    console.error('Error deleting file:', error)
+    return { success: false, message: error.message }
+  }
+}

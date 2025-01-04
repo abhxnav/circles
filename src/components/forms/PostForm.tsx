@@ -5,14 +5,45 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogTitle,
   DialogTrigger,
   Form,
 } from '@/components/ui'
-import { CustomFormField } from '@/components'
+import { CustomFormField, FormSubmitButton } from '@/components'
 import { PostFormSchema } from '@/lib/validations'
-import { uploadFileToSupabase } from '@/actions/posts.actions'
+import {
+  deleteFileFromSupabase,
+  uploadFileToSupabase,
+} from '@/actions/posts.actions'
+import {
+  useCreateMentions,
+  useCreatePost,
+  useDeletePost,
+} from '@/react-query/mutations'
+import { useToast } from '@/hooks/use-toast'
+import { useUserContext } from '@/context/UserContext'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const PostForm = ({ post }: { post: Post | null }) => {
+  const {
+    createPost,
+    isLoading: postLoading,
+    error: postError,
+  } = useCreatePost()
+  const {
+    createMentions,
+    isLoading: mentionLoading,
+    error: mentionError,
+  } = useCreateMentions()
+  const { deletePost } = useDeletePost()
+  const { toast } = useToast()
+  const { user } = useUserContext()
+  const navigate = useNavigate()
+
+  const [uploadLoading, setUploadLoading] = useState(false)
+
   const form = useForm<z.infer<typeof PostFormSchema>>({
     resolver: zodResolver(PostFormSchema),
     defaultValues: {
@@ -23,10 +54,15 @@ const PostForm = ({ post }: { post: Post | null }) => {
   })
 
   const onSubmit = async (values: z.infer<typeof PostFormSchema>) => {
+    let uploadedFilePath: string | undefined
+    let postId: string | undefined
+
     try {
       let imageUrl: string | undefined = values.image as string
 
       if (Array.isArray(values.image) && values.image[0] instanceof File) {
+        setUploadLoading(true)
+
         const {
           data: uploadedUrl,
           success,
@@ -35,17 +71,58 @@ const PostForm = ({ post }: { post: Post | null }) => {
 
         if (!success || !uploadedUrl) throw new Error(message)
         imageUrl = uploadedUrl
+        uploadedFilePath = values.image[0].name
+        setUploadLoading(false)
       }
 
-      const payload = {
-        caption: values.caption,
-        image: imageUrl,
-        mentions: values.mentions,
+      const postInput = {
+        content: values.caption,
+        image_url: imageUrl,
+        author_id: user.id,
       }
 
-      console.log('Final Post Data:', payload)
+      const { data: postData } = await createPost({
+        variables: {
+          postInput,
+        },
+      })
+
+      if (postError) throw new Error(postError.message)
+
+      postId = postData.insertIntopostsCollection.records[0].id
+      const mentionedUsersId = values.mentions?.map((user) => user.id)
+
+      const mentionsInput = {
+        mentioned_users_id: mentionedUsersId,
+        post_id: postId,
+      }
+
+      if (mentionedUsersId?.length) {
+        await createMentions({
+          variables: { mentions: mentionsInput },
+        })
+      }
+
+      if (mentionError) throw new Error(mentionError.message)
+
+      toast({ description: 'Post created successfully' })
+      navigate('/')
     } catch (error) {
       console.error('Error creating post:', error)
+
+      if (uploadedFilePath) {
+        await deleteFileFromSupabase(uploadedFilePath) // Delete uploaded file
+      }
+
+      if (postId) {
+        await deletePost({
+          variables: {
+            filter: { id: { eq: postId } },
+          },
+        }) // Delete the post
+      }
+
+      toast({ description: 'Failed to create post', variant: 'destructive' })
     }
   }
 
@@ -79,6 +156,12 @@ const PostForm = ({ post }: { post: Post | null }) => {
             <p className="text-light-secondary text-sm">Mention People</p>
           </DialogTrigger>
           <DialogContent className="bg-dark-primary border-dark-muted">
+            <DialogTitle className="text-light-secondary text-xl">
+              Mention People
+            </DialogTitle>
+            <DialogDescription>
+              Search for people you want to mention in this post
+            </DialogDescription>
             <CustomFormField
               control={form.control}
               fieldType="mentions"
@@ -95,12 +178,12 @@ const PostForm = ({ post }: { post: Post | null }) => {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            className="bg-accent-coral hover:bg-accent-coral/70 text-dark-primary !border-none !outline-none font-bold"
-          >
-            Post
-          </Button>
+          <FormSubmitButton
+            isLoading={postLoading || mentionLoading || uploadLoading}
+            loadingText="Posting..."
+            text="Post"
+            className="text-base h-9"
+          />
         </div>
       </form>
     </Form>

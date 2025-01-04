@@ -144,7 +144,6 @@ const RenderField = <T extends FieldValues>({
       return (
         <FormControl>
           <div className="flex flex-col gap-5">
-            <h1 className="text-light-secondary text-xl">Mention People</h1>
             <div className="text-light-primary">
               {/* Search Bar */}
               <Input
@@ -242,7 +241,9 @@ const RenderField = <T extends FieldValues>({
                       )
                     })
                   ) : (
-                    <p className="text-light-muted">No results found.</p>
+                    <p className="text-light-muted text-sm">
+                      No results found.
+                    </p>
                   )}
                 </div>
               )}

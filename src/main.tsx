@@ -6,13 +6,17 @@ import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from '@/components/ui'
 import UserProvider from '@/context/UserContext'
 import QueryProvider from '@/react-query/QueryProvider'
+import { ApolloProvider } from '@apollo/client'
+import client from '@/graphql/client'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <QueryProvider>
         <UserProvider>
-          <App />
+          <ApolloProvider client={client}>
+            <App />
+          </ApolloProvider>
           <Toaster />
         </UserProvider>
       </QueryProvider>

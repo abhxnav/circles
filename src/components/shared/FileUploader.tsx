@@ -61,7 +61,10 @@ const FileUploader = ({ fieldChange, mediaUrl }: FileUploaderProps) => {
               height={80}
             />
 
-            <Button className="border-dashed border-accent-coral hover:border-solid hover:border-accent-coral flex items-center justify-center gap-2 rounded-full">
+            <Button
+              type="button"
+              className="border-dashed border-accent-coral hover:border-solid hover:border-accent-coral flex items-center justify-center gap-2 rounded-full"
+            >
               <img
                 src="/assets/icons/upload.svg"
                 alt="upload"
