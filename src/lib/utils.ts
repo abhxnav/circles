@@ -1,6 +1,15 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { envConfig } from './envConfig'
+import { envConfig } from '@/lib/envConfig'
+
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import utc from 'dayjs/plugin/utc'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+
+dayjs.extend(relativeTime)
+dayjs.extend(utc)
+dayjs.extend(isSameOrBefore)
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -41,4 +50,15 @@ export const generateAvatar = async (name: string): Promise<Blob> => {
 export const getLocalStorageKey = () => {
   const projectId = envConfig.supabase.supabaseProjectId
   return `sb-${projectId}-auth-token`
+}
+
+export const getRelativeTime = (timestamp: string) => {
+  const now = dayjs()
+  const createdDate = dayjs.utc(timestamp).local()
+
+  if (createdDate.isBefore(now.subtract(4, 'weeks'))) {
+    return createdDate.format('D MMM YYYY') // Example: "10 Jan 2025"
+  }
+
+  return createdDate.fromNow()
 }

@@ -25,9 +25,9 @@ const authLink = setContext(async (_, { headers }) => {
   }
 })
 
-const client = new ApolloClient({
+const gqlClient = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 })
 
-export default client
+export default gqlClient

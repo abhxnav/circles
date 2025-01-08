@@ -28,16 +28,16 @@ import { useNavigate } from 'react-router-dom'
 
 const PostForm = ({ post }: { post: Post | null }) => {
   const {
-    createPost,
-    isLoading: postLoading,
+    mutateAsync: createPost,
+    isPending: postLoading,
     error: postError,
   } = useCreatePost()
   const {
-    createMentions,
-    isLoading: mentionLoading,
+    mutateAsync: createMentions,
+    isPending: mentionLoading,
     error: mentionError,
   } = useCreateMentions()
-  const { deletePost } = useDeletePost()
+  const { mutateAsync: deletePost } = useDeletePost()
   const { toast } = useToast()
   const { user } = useUserContext()
   const navigate = useNavigate()
@@ -81,11 +81,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
         author_id: user.id,
       }
 
-      const { data: postData } = await createPost({
-        variables: {
-          postInput,
-        },
-      })
+      const postData = await createPost({ postInput })
 
       if (postError) throw new Error(postError.message)
 
@@ -98,9 +94,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
       }
 
       if (mentionedUsersId?.length) {
-        await createMentions({
-          variables: { mentions: mentionsInput },
-        })
+        await createMentions({ mentions: [mentionsInput] })
       }
 
       if (mentionError) throw new Error(mentionError.message)
@@ -115,11 +109,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
       }
 
       if (postId) {
-        await deletePost({
-          variables: {
-            filter: { id: { eq: postId } },
-          },
-        }) // Delete the post
+        await deletePost({ postId }) // Delete the post
       }
 
       toast({ description: 'Failed to create post', variant: 'destructive' })

@@ -24,7 +24,7 @@ interface NavLink {
 
 interface Post {
   id: string
-  author_id: string
+  author: User
   content: string
   image_url: string
   created_at: string

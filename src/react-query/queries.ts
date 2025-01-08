@@ -1,12 +1,12 @@
-import { GET_ALL_POSTS } from '@/graphql/posts/postQueries'
-import { useQuery } from '@apollo/client'
+import { fetchRecentPosts } from '@/actions/posts.actions'
+import { QUERY_KEYS } from '@/graphql/posts/queryKeys'
+import { useQuery } from '@tanstack/react-query'
 
-export const useFetchAllPosts = () => {
-  const { data, loading, error } = useQuery(GET_ALL_POSTS)
-
-  return {
-    posts: data?.posts || [],
-    isLoading: loading,
-    error,
-  }
+export const useFetchRecentPosts = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+    queryFn: fetchRecentPosts,
+    staleTime: 10 * 60 * 1000, // Cache data for 10 minutes
+    retry: 3,
+  })
 }

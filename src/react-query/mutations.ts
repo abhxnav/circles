@@ -1,59 +1,55 @@
 import { login, logout, signUpUser } from '@/actions/auth.actions'
-import { SigninFormSchema, SignupFormSchema } from '@/lib/validations'
-import { useMutation } from '@tanstack/react-query'
-import { useMutation as useGQLMutation } from '@apollo/client'
-import { z } from 'zod'
-import {
-  CREATE_MENTIONS,
-  CREATE_POST,
-  DELETE_POST,
-} from '@/graphql/posts/postMutations'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createMentions, createPost, deletePost } from '@/actions/posts.actions'
+import { QUERY_KEYS } from '@/graphql/posts/queryKeys'
 
 export const useSignUpUser = () => {
   return useMutation({
-    mutationFn: (values: z.infer<typeof SignupFormSchema>) =>
-      signUpUser(values),
+    mutationFn: signUpUser,
   })
 }
 
 export const useLogin = () => {
   return useMutation({
-    mutationFn: (values: z.infer<typeof SigninFormSchema>) => login(values),
+    mutationFn: login,
   })
 }
 
 export const useLogout = () => {
   return useMutation({
-    mutationFn: () => logout(),
+    mutationFn: logout,
   })
 }
 
 export const useCreatePost = () => {
-  const [createPost, { loading, error }] = useGQLMutation(CREATE_POST)
+  const queryClient = useQueryClient()
 
-  return {
-    createPost,
-    isLoading: loading,
-    error,
-  }
+  return useMutation({
+    mutationFn: createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    },
+  })
 }
 
 export const useCreateMentions = () => {
-  const [createMentions, { loading, error }] = useGQLMutation(CREATE_MENTIONS)
+  const queryClient = useQueryClient()
 
-  return {
-    createMentions,
-    isLoading: loading,
-    error,
-  }
+  return useMutation({
+    mutationFn: createMentions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    },
+  })
 }
 
 export const useDeletePost = () => {
-  const [deletePost, { loading, error }] = useGQLMutation(DELETE_POST)
+  const queryClient = useQueryClient()
 
-  return {
-    deletePost,
-    isLoading: loading,
-    error,
-  }
+  return useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    },
+  })
 }

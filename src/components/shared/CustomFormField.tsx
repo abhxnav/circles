@@ -15,7 +15,7 @@ import {
   Textarea,
 } from '@/components/ui'
 import clsx from 'clsx'
-import { FileUploader } from '@/components'
+import { FileUploader, MentionSearchListSkeleton } from '@/components'
 import { searchUsers } from '@/actions/users.actions'
 
 interface CustomFormFieldProps<T extends FieldValues> {
@@ -195,20 +195,7 @@ const RenderField = <T extends FieldValues>({
 
               {/* Search List */}
               {isLoading ? (
-                <div className="flex flex-col gap-2 mt-4 shadow-lg h-60 overflow-auto scrollbar-styled">
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 cursor-pointer rounded-md bg-dark-secondary p-4"
-                    >
-                      <div className="size-10 rounded-full bg-dark-muted animate-pulse"></div>
-                      <div className="flex flex-col gap-1">
-                        <div className="w-24 h-4 bg-dark-muted animate-pulse"></div>
-                        <div className="w-16 h-3 bg-dark-muted animate-pulse"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <MentionSearchListSkeleton />
               ) : (
                 <div className="flex flex-col gap-2 mt-4 shadow-lg h-60 overflow-auto scrollbar-styled">
                   {searchResults.length > 0 ? (
