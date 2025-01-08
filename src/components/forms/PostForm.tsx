@@ -49,7 +49,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
     defaultValues: {
       caption: post ? post?.content : '',
       image: post ? post?.image_url : '',
-      mentions: post ? post?.mentions : [],
+      mentions: post ? post?.mentionedUsers : [],
     },
   })
 
@@ -145,7 +145,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
             />
             <p className="text-light-secondary text-sm">Mention People</p>
           </DialogTrigger>
-          <DialogContent className="bg-dark-primary border-dark-muted">
+          <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw]">
             <DialogTitle className="text-light-secondary text-xl">
               Mention People
             </DialogTitle>
@@ -165,6 +165,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
             type="button"
             variant="ghost"
             className="text-light-secondary !border-none !outline-none hover:opacity-70 font-bold"
+            onClick={() => navigate('/')}
           >
             Cancel
           </Button>

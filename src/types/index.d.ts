@@ -28,5 +28,5 @@ interface Post {
   content: string
   image_url: string
   created_at: string
-  mentions: User[]
+  mentionedUsers: User[]
 }

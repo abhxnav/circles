@@ -17,8 +17,6 @@ interface PostCardProps {
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext()
 
-  const expandImage = () => {}
-
   if (!post) return null
 
   return (
@@ -40,6 +38,50 @@ const PostCard = ({ post }: PostCardProps) => {
             <p className="font-medium text-sm lg:text-base lg:font-bold text-light-primary">
               {post?.author?.username}
             </p>
+
+            {post?.mentionedUsers?.length > 0 && (
+              <div className="flex items-center gap-1">
+                <p className="font-medium text-xs lg:text-sm lg:font-bold text-light-secondary">
+                  and
+                </p>
+                <Dialog>
+                  <DialogTrigger className="p-0 !border-none !outline-none">
+                    <p className="font-medium text-xs lg:text-sm lg:font-bold text-light-primary cursor-pointer hover:underline">
+                      {post?.mentionedUsers?.length}{' '}
+                      {post?.mentionedUsers?.length === 1 ? 'other' : 'others'}
+                    </p>
+                  </DialogTrigger>
+                  <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw] max-h-[90vh]">
+                    <DialogTitle className="text-light-primary">
+                      Mentioned in this post
+                    </DialogTitle>
+                    <DialogDescription className="hidden"></DialogDescription>
+                    <ul className="flex flex-col gap-2 mt-4 shadow-lg h-full overflow-auto scrollbar-styled">
+                      {post?.mentionedUsers?.map((user: User) => (
+                        <div
+                          key={user.id}
+                          className="flex items-center gap-3 cursor-pointer rounded-md bg-dark-secondary p-4 hover:opacity-70"
+                        >
+                          <img
+                            src={user?.avatar_url}
+                            alt={user?.username}
+                            className="size-10 rounded-full"
+                          />
+                          <div className="flex flex-col gap-1">
+                            <p className="leading-none text-light-secondary">
+                              {user?.name}
+                            </p>
+                            <p className="text-xs text-light-muted leading-none">
+                              @{user?.username}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </ul>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
 
             <div className="flex items-center gap-1 text-light-muted">
               <p className="text-xs">&bull;</p>
@@ -64,11 +106,10 @@ const PostCard = ({ post }: PostCardProps) => {
           <DialogTrigger className="p-0 !border-none !outline-none">
             <img
               src={post?.image_url}
-              onClick={expandImage}
               className="h-64 lg:h-[450px] w-full object-cover"
             />
           </DialogTrigger>
-          <DialogContent className="bg-dark-primary border-dark-muted">
+          <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw]">
             <DialogTitle className="hidden"></DialogTitle>
             <DialogDescription className="hidden"></DialogDescription>
             <img src={post?.image_url} />
