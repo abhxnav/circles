@@ -47,3 +47,49 @@ export const FETCH_USERS_BY_IDS = gql`
     }
   }
 `
+
+export const FETCH_LIKES_FOR_POST = gql`
+  query FetchLikesForPost($postId: UUID!) {
+    postsCollection(filter: { id: { eq: $postId } }) {
+      edges {
+        node {
+          id
+          content
+          likesCollection {
+            edges {
+              node {
+                id
+                user_id
+                post_id
+              }
+            }
+            pageInfo {
+              hasNextPage
+              hasPreviousPage
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const LIKE_POST = gql`
+  mutation LikePost($likeInput: likesInsertInput!) {
+    insertIntolikesCollection(objects: [$likeInput]) {
+      records {
+        id
+        post_id
+        user_id
+      }
+    }
+  }
+`
+
+export const UNLIKE_POST = gql`
+  mutation UnlikePost($filter: likesFilter!) {
+    deleteFromlikesCollection(filter: $filter) {
+      affectedCount
+    }
+  }
+`

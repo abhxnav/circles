@@ -29,4 +29,5 @@ interface Post {
   image_url: string
   created_at: string
   mentionedUsers: User[]
+  likes: User[]
 }

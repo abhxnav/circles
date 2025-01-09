@@ -5,8 +5,11 @@ import {
   DELETE_POST,
 } from '@/graphql/posts/postMutations'
 import {
+  FETCH_LIKES_FOR_POST,
   FETCH_RECENT_POSTS,
   FETCH_USERS_BY_IDS,
+  LIKE_POST,
+  UNLIKE_POST,
 } from '@/graphql/posts/postQueries'
 import { supabase } from '@/lib/supabase/config'
 
@@ -82,7 +85,9 @@ export const fetchRecentPosts = async () => {
       (edge: any) => edge.node.mentioned_users_id
     )
 
-    const mentionedUsers = await fetchMentionedUsersDetails(mentionedUserIds)
+    const mentionedUsers = await fetchUsersByIds(mentionedUserIds)
+
+    const likes = await fetchPostLikes(post.id)
 
     return {
       id: post.id,
@@ -96,13 +101,14 @@ export const fetchRecentPosts = async () => {
         avatar_url: author.avatar_url,
       },
       mentionedUsers, // Array of mentioned user IDs
+      likes,
     }
   })
 
   return Promise.all(posts)
 }
 
-const fetchMentionedUsersDetails = async (userIds: string[]) => {
+const fetchUsersByIds = async (userIds: string[]) => {
   if (!userIds || userIds.length === 0) return []
 
   const { data } = await gqlClient.query({
@@ -111,4 +117,36 @@ const fetchMentionedUsersDetails = async (userIds: string[]) => {
   })
 
   return data?.usersCollection?.edges.map((edge: any) => edge.node) || []
+}
+
+export const fetchPostLikes = async (postId: string) => {
+  const { data } = await gqlClient.query({
+    query: FETCH_LIKES_FOR_POST,
+    variables: { postId },
+  })
+
+  const likes =
+    data?.postsCollection?.edges[0]?.node?.likesCollection?.edges?.map(
+      (edge: any) => edge.node
+    )
+
+  const likeUserIds = likes.map((like: any) => like.user_id)
+
+  return fetchUsersByIds(likeUserIds)
+}
+
+export const likePost = async ({ likeInput }: { likeInput: any }) => {
+  const { data } = await gqlClient.mutate({
+    mutation: LIKE_POST,
+    variables: { likeInput },
+  })
+  return data
+}
+
+export const unlikePost = async ({ filter }: { filter: any }) => {
+  const { data } = await gqlClient.mutate({
+    mutation: UNLIKE_POST,
+    variables: { filter },
+  })
+  return data
 }

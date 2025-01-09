@@ -1,6 +1,12 @@
 import { login, logout, signUpUser } from '@/actions/auth.actions'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createMentions, createPost, deletePost } from '@/actions/posts.actions'
+import {
+  createMentions,
+  createPost,
+  deletePost,
+  likePost,
+  unlikePost,
+} from '@/actions/posts.actions'
 import { QUERY_KEYS } from '@/graphql/posts/queryKeys'
 
 export const useSignUpUser = () => {
@@ -48,6 +54,28 @@ export const useDeletePost = () => {
 
   return useMutation({
     mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    },
+  })
+}
+
+export const useLikePost = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: likePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    },
+  })
+}
+
+export const useUnlikePost = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: unlikePost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
     },
