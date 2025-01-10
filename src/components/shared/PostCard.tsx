@@ -3,12 +3,16 @@ import { getRelativeTime } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 import { PostStats } from '@/components'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui'
+import { useDeletePost } from '@/react-query/mutations'
+import { useToast } from '@/hooks/use-toast'
+import { useState } from 'react'
 
 interface PostCardProps {
   post: Post
@@ -16,6 +20,28 @@ interface PostCardProps {
 
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext()
+  const { mutateAsync: deletePost } = useDeletePost()
+  const { toast } = useToast()
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  const handleDeletePost = async () => {
+    try {
+      await deletePost(post?.id)
+      toast({
+        title: 'Post deleted successfully.',
+        description: 'Your post has been deleted.',
+      })
+      setDeleteDialogOpen(false)
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong.',
+        description: 'Failed to delete post.',
+      })
+    }
+  }
 
   if (!post) return null
 
@@ -91,12 +117,47 @@ const PostCard = ({ post }: PostCardProps) => {
             </div>
           </div>
         </div>
-        <Link
-          to={`/update-post/${post?.id}`}
-          className={`${user?.id !== post?.author?.id && 'hidden'} self-start`}
-        >
-          <img src="/assets/icons/edit.svg" alt="edit" className="size-4" />
-        </Link>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogTrigger className="p-0 !border-none !outline-none">
+            <div
+              className={`${
+                user?.id !== post?.author?.id && 'hidden'
+              } self-start cursor-pointer`}
+            >
+              <img
+                src="/assets/icons/delete.svg"
+                alt="delete"
+                className="size-4"
+              />
+            </div>
+          </DialogTrigger>
+          <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw]">
+            <DialogTitle className="text-light-primary">
+              Are you sure?
+            </DialogTitle>
+            <DialogDescription className="text-light-muted">
+              You won't be able to restore the post once deleted!
+            </DialogDescription>
+            <div className="flex gap-2 items-center justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-light-secondary !border-none !outline-none hover:opacity-70 font-semibold"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="text-light-primary !border-none !outline-none hover:opacity-70 font-semibold bg-red-700"
+                onClick={handleDeletePost}
+              >
+                Delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <p className="text-light-primary text-sm lg:text-base">{post?.content}</p>

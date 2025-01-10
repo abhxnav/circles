@@ -54,8 +54,30 @@ export const useDeletePost = () => {
 
   return useMutation({
     mutationFn: deletePost,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    onMutate: async (postId) => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      })
+
+      const previousPosts = queryClient.getQueryData([
+        QUERY_KEYS.GET_RECENT_POSTS,
+      ])
+
+      queryClient.setQueryData(
+        [QUERY_KEYS.GET_RECENT_POSTS],
+        (oldPosts: any) => {
+          return oldPosts?.filter((post: any) => post.id !== postId)
+        }
+      )
+
+      return { previousPosts }
+    },
+    onError: (error, postId, context) => {
+      queryClient.setQueryData(
+        [QUERY_KEYS.GET_RECENT_POSTS],
+        context?.previousPosts
+      )
+      console.error('Error deleting post:', error)
     },
   })
 }

@@ -14,7 +14,7 @@ const Home = () => {
             className="hidden md:flex"
           />
           {isPostLoading && !posts ? (
-            <ul className="flex flex-col gap-9 w-full">
+            <ul className="flex flex-col gap-5 lg:gap-7 w-full">
               {Array.from({ length: 3 }).map((_, index) => (
                 <li key={index}>
                   <PostCardSkeleton />
@@ -22,7 +22,7 @@ const Home = () => {
               ))}
             </ul>
           ) : (
-            <ul className="flex flex-col flex-1 gap-9 w-full">
+            <ul className="flex flex-col flex-1 gap-5 lg:gap-7 w-full">
               {posts?.map((post: Post) => (
                 <li key={post.id} className="text-light-primary">
                   <PostCard post={post} />

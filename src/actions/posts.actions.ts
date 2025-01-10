@@ -65,10 +65,10 @@ export const createMentions = async ({ mentions }: { mentions: any[] }) => {
   return data
 }
 
-export const deletePost = async ({ postId }: { postId: string }) => {
+export const deletePost = async (postId: string) => {
   const { data } = await gqlClient.mutate({
     mutation: DELETE_POST,
-    variables: { postId },
+    variables: { filter: { id: { eq: postId } } },
   })
   return data
 }
