@@ -1,7 +1,7 @@
 import { useUserContext } from '@/context/UserContext'
-import { getRelativeTime } from '@/lib/utils'
+import { getRelativeTime, truncateText } from '@/lib/utils'
 import { Link } from 'react-router-dom'
-import { PostStats } from '@/components'
+import { PostPopup, PostStats } from '@/components'
 import {
   Button,
   Dialog,
@@ -46,7 +46,7 @@ const PostCard = ({ post }: PostCardProps) => {
   if (!post) return null
 
   return (
-    <div className="bg-dark-secondary rounded-xl border border-dark-muted p-3 lg:p-7 w-full max-w-screen-sm flex flex-col gap-3">
+    <div className="bg-dark-secondary rounded-xl border border-dark-muted p-3 lg:p-7 w-full max-w-screen-md flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link to={`/profile/${post?.author?.id}`}>
@@ -160,23 +160,19 @@ const PostCard = ({ post }: PostCardProps) => {
         </Dialog>
       </div>
 
-      <p className="text-light-primary text-sm lg:text-base">{post?.content}</p>
-
-      {post?.image_url && (
-        <Dialog>
-          <DialogTrigger className="p-0 !border-none !outline-none">
+      <PostPopup post={post}>
+        <div className="flex flex-col gap-4">
+          <p className="text-light-primary text-start text-sm lg:text-base">
+            {truncateText(post?.content, 150)}
+          </p>
+          {post.image_url && (
             <img
               src={post?.image_url}
               className="h-64 lg:h-[450px] w-full object-cover"
             />
-          </DialogTrigger>
-          <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw]">
-            <DialogTitle className="hidden"></DialogTitle>
-            <DialogDescription className="hidden"></DialogDescription>
-            <img src={post?.image_url} />
-          </DialogContent>
-        </Dialog>
-      )}
+          )}
+        </div>
+      </PostPopup>
 
       <PostStats post={post} userId={user?.id} />
     </div>

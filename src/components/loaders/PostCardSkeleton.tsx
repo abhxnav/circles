@@ -1,6 +1,6 @@
 const PostCardSkeleton = () => {
   return (
-    <div className="bg-dark-secondary rounded-xl border border-dark-muted p-3 lg:p-7 w-full max-w-screen-sm flex flex-col gap-3 animate-pulse">
+    <div className="bg-dark-secondary rounded-xl border border-dark-muted p-3 lg:p-7 w-full max-w-screen-md flex flex-col gap-3 animate-pulse">
       {/* Author Section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

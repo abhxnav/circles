@@ -25,7 +25,7 @@ const LeftSidebar = () => {
 
   return (
     <nav className="hidden md:flex px-5 py-7 flex-col min-w-[270px] h-screen bg-dark-secondary sticky top-0">
-      <Link to="/" className="w-fit flex items-center gap-2 pb-10">
+      <Link to="/" className="w-fit flex items-center gap-2 pb-10 ml-2">
         <Logo type="icon" className="h-8" />
         <Logo type="text" className="h-6" />
       </Link>

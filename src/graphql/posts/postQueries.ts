@@ -74,22 +74,35 @@ export const FETCH_LIKES_FOR_POST = gql`
   }
 `
 
-export const LIKE_POST = gql`
-  mutation LikePost($likeInput: likesInsertInput!) {
-    insertIntolikesCollection(objects: [$likeInput]) {
-      records {
-        id
-        post_id
-        user_id
+export const FETCH_POPULAR_POSTS = gql`
+  query FetchPopularPosts($date: Date!, $orderBy: [postsOrderBy!]) {
+    postsCollection(filter: { created_at: { gte: $date } }, first: 20) {
+      edges {
+        node {
+          id
+          content
+          image_url
+          author_id
+          created_at
+          users {
+            id
+            username
+            name
+            avatar_url
+          }
+          mentionsCollection {
+            edges {
+              node {
+                mentioned_users_id
+              }
+            }
+          }
+        }
       }
-    }
-  }
-`
-
-export const UNLIKE_POST = gql`
-  mutation UnlikePost($filter: likesFilter!) {
-    deleteFromlikesCollection(filter: $filter) {
-      affectedCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+      }
     }
   }
 `

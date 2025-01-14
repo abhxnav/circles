@@ -31,3 +31,23 @@ export const DELETE_POST = gql`
     }
   }
 `
+
+export const LIKE_POST = gql`
+  mutation LikePost($likeInput: likesInsertInput!) {
+    insertIntolikesCollection(objects: [$likeInput]) {
+      records {
+        id
+        post_id
+        user_id
+      }
+    }
+  }
+`
+
+export const UNLIKE_POST = gql`
+  mutation UnlikePost($filter: likesFilter!) {
+    deleteFromlikesCollection(filter: $filter) {
+      affectedCount
+    }
+  }
+`

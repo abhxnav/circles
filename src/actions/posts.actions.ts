@@ -6,11 +6,11 @@ import {
 } from '@/graphql/posts/postMutations'
 import {
   FETCH_LIKES_FOR_POST,
+  FETCH_POPULAR_POSTS,
   FETCH_RECENT_POSTS,
   FETCH_USERS_BY_IDS,
-  LIKE_POST,
-  UNLIKE_POST,
 } from '@/graphql/posts/postQueries'
+import { LIKE_POST, UNLIKE_POST } from '@/graphql/posts/postMutations'
 import { supabase } from '@/lib/supabase/config'
 
 export const uploadFileToSupabase = async (file: File) => {
@@ -73,39 +73,57 @@ export const deletePost = async (postId: string) => {
   return data
 }
 
+const processPosts = async (edges: any[]) => {
+  return Promise.all(
+    edges.map(async (edge: any) => {
+      const post = edge?.node
+      const author = post.users
+
+      const mentionedUserIds = post.mentionsCollection.edges.flatMap(
+        (edge: any) => edge.node.mentioned_users_id
+      )
+      const mentionedUsers = await fetchUsersByIds(mentionedUserIds)
+
+      const likes = await fetchPostLikes(post.id)
+
+      return {
+        id: post.id,
+        content: post.content,
+        image_url: post.image_url,
+        created_at: post.created_at,
+        author: {
+          id: author.id,
+          name: author.name,
+          username: author.username,
+          avatar_url: author.avatar_url,
+        },
+        mentionedUsers,
+        likes,
+      }
+    })
+  )
+}
+
 export const fetchRecentPosts = async () => {
   const { data } = await gqlClient.query({
     query: FETCH_RECENT_POSTS,
   })
+  const edges = data?.postsCollection?.edges || []
+  return processPosts(edges) || []
+}
 
-  const posts = data?.postsCollection?.edges.map(async (edge: any) => {
-    const post = edge?.node
-    const author = post.users
-    const mentionedUserIds = post.mentionsCollection.edges.flatMap(
-      (edge: any) => edge.node.mentioned_users_id
-    )
+export const fetchPopularPosts = async () => {
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
+  const isoDate = today.toISOString()
 
-    const mentionedUsers = await fetchUsersByIds(mentionedUserIds)
-
-    const likes = await fetchPostLikes(post.id)
-
-    return {
-      id: post.id,
-      content: post.content,
-      image_url: post.image_url,
-      created_at: post.created_at,
-      author: {
-        id: author.id,
-        name: author.name,
-        username: author.username,
-        avatar_url: author.avatar_url,
-      },
-      mentionedUsers, // Array of mentioned user IDs
-      likes,
-    }
+  const { data } = await gqlClient.query({
+    query: FETCH_POPULAR_POSTS,
+    variables: { date: isoDate },
   })
-
-  return Promise.all(posts)
+  const edges = data?.postsCollection?.edges || []
+  const posts = await processPosts(edges)
+  return posts.sort((a, b) => b.likes.length - a.likes.length) || []
 }
 
 const fetchUsersByIds = async (userIds: string[]) => {
