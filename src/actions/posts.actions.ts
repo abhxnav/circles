@@ -9,6 +9,7 @@ import {
   FETCH_POPULAR_POSTS,
   FETCH_RECENT_POSTS,
   FETCH_USERS_BY_IDS,
+  SEARCH_POSTS,
 } from '@/graphql/posts/postQueries'
 import { LIKE_POST, UNLIKE_POST } from '@/graphql/posts/postMutations'
 import { supabase } from '@/lib/supabase/config'
@@ -167,4 +168,16 @@ export const unlikePost = async ({ filter }: { filter: any }) => {
     variables: { filter },
   })
   return data
+}
+
+export const searchPosts = async (searchTerm: string) => {
+  const wildcardSearch = `%${searchTerm}%`
+
+  const { data } = await gqlClient.query({
+    query: SEARCH_POSTS,
+    variables: { searchTerm: wildcardSearch },
+  })
+
+  const edges = data?.postsCollection?.edges || []
+  return processPosts(edges)
 }

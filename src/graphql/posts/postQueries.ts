@@ -106,3 +106,32 @@ export const FETCH_POPULAR_POSTS = gql`
     }
   }
 `
+
+export const SEARCH_POSTS = gql`
+  query SearchPosts($searchTerm: String!) {
+    postsCollection(filter: { content: { ilike: $searchTerm } }) {
+      edges {
+        node {
+          id
+          content
+          image_url
+          author_id
+          created_at
+          users {
+            id
+            username
+            name
+            avatar_url
+          }
+          mentionsCollection {
+            edges {
+              node {
+                mentioned_users_id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
