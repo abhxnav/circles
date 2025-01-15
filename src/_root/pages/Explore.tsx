@@ -1,4 +1,4 @@
-import { GridPostList, Header } from '@/components'
+import { GridPostList, Header, SearchPostsSkeleton } from '@/components'
 import { Input } from '@/components/ui'
 import { useFetchPopularPosts, useSearchPosts } from '@/react-query/queries'
 import { useEffect, useState } from 'react'
@@ -48,19 +48,23 @@ const Explore = () => {
           />
         </div>
 
-        <h3 className="w-full max-w-5xl font-bold md:text-2xl text-light-primary">
-          Popular Today
-        </h3>
+        {!showSearchResults && (
+          <h3 className="w-full max-w-5xl font-bold md:text-2xl text-light-primary">
+            Popular Today
+          </h3>
+        )}
 
         <div className="flex flex-wrap gap-9 w-full max-w-5xl">
-          {showSearchResults && searchedPosts?.length ? (
-            <GridPostList posts={searchedPosts} />
-          ) : showSearchResults && !searchedPosts?.length ? (
-            <p className="text-light-muted text-center text-sm w-full">
-              No posts found
-            </p>
-          ) : isPopularPostLoading || isSearchPostLoading ? (
-            <p className="text-white">Loading</p>
+          {isPopularPostLoading || isSearchPostLoading ? (
+            <SearchPostsSkeleton />
+          ) : showSearchResults ? (
+            searchedPosts?.length ? (
+              <GridPostList posts={searchedPosts} />
+            ) : (
+              <p className="text-light-muted text-center text-sm w-full">
+                No posts found
+              </p>
+            )
           ) : popularPosts?.length ? (
             <GridPostList posts={popularPosts} />
           ) : (

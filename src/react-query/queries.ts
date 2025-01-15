@@ -3,7 +3,7 @@ import {
   fetchRecentPosts,
   searchPosts,
 } from '@/actions/posts.actions'
-import { fetchRandomUsers } from '@/actions/users.actions'
+import { fetchRandomUsers, searchUsers } from '@/actions/users.actions'
 import { QUERY_KEYS } from '@/graphql/queryKeys'
 import { useQuery } from '@tanstack/react-query'
 
@@ -36,5 +36,13 @@ export const useFetchRandomusers = () => {
     queryKey: [QUERY_KEYS.GET_RANDOM_USERS],
     queryFn: fetchRandomUsers,
     retry: 3,
+  })
+}
+
+export const useSearchUsers = (searchTerm: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_USERS, searchTerm],
+    queryFn: () => searchUsers(searchTerm),
+    enabled: !!searchTerm,
   })
 }

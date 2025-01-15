@@ -14,3 +14,26 @@ export const FETCH_RANDOM_USERS = gql`
     }
   }
 `
+
+export const SEARCH_USERS = gql`
+  query SearchUsers($searchTerm: String!) {
+    usersCollection(
+      filter: {
+        or: [
+          { username: { ilike: $searchTerm } }
+          { name: { ilike: $searchTerm } }
+        ]
+      }
+      orderBy: [{ username: AscNullsLast }]
+    ) {
+      edges {
+        node {
+          id
+          name
+          username
+          avatar_url
+        }
+      }
+    }
+  }
+`

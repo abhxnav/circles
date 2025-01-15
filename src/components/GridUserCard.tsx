@@ -21,8 +21,10 @@ const GridUserCard = ({ user }: GridUserCardProps) => {
       />
 
       <div className="flex flex-col items-center justify-center">
-        <p className="text-light-primary">@ {user.username}</p>
-        <p className="text-light-muted">{user.name}</p>
+        <p className="text-light-primary whitespace-nowrap">
+          @ {user.username}
+        </p>
+        <p className="text-light-muted whitespace-nowrap">{user.name}</p>
       </div>
 
       <Button

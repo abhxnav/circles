@@ -14,6 +14,8 @@ export { default as PostForm } from '@/components/forms/PostForm'
 
 export { default as MentionSearchListSkeleton } from '@/components/loaders/MentionSearchListSkeleton'
 export { default as PostCardSkeleton } from '@/components/loaders/PostCardSkeleton'
+export { default as SearchPeopleSkeleton } from '@/components/loaders/SearchPeopleSkeleton'
+export { default as SearchPostsSkeleton } from '@/components/loaders/SearchPostsSkeleton'
 
 export { default as SearchResults } from '@/components/SearchResults'
 export { default as GridPostList } from '@/components/GridPostList'

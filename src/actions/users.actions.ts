@@ -1,5 +1,5 @@
 import gqlClient from '@/graphql/client'
-import { FETCH_RANDOM_USERS } from '@/graphql/users/userQueries'
+import { FETCH_RANDOM_USERS, SEARCH_USERS } from '@/graphql/users/userQueries'
 import { supabase } from '@/lib/supabase/config'
 import { shuffle } from 'lodash'
 
@@ -16,21 +16,13 @@ export const getAllUsers = async () => {
   }
 }
 
-export const searchUsers = async (query: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .ilike('username', `%${query}%`)
-      .ilike('name', `%${query}%`)
-      .order('username', { ascending: true })
+export const searchUsers = async (searchTerm: string) => {
+  const { data } = await gqlClient.query({
+    query: SEARCH_USERS,
+    variables: { searchTerm: `%${searchTerm}%` },
+  })
 
-    if (error) throw new Error(error.message)
-
-    return { success: true, message: 'Users fetched successfully', data }
-  } catch (error: any) {
-    return { success: false, message: error.message }
-  }
+  return data?.usersCollection?.edges?.map((edge: any) => edge.node) || []
 }
 
 export const fetchRandomUsers = async () => {

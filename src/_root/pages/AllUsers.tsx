@@ -1,6 +1,6 @@
-import { GridUserList, Header } from '@/components'
+import { GridUserList, Header, SearchPeopleSkeleton } from '@/components'
 import { Input } from '@/components/ui'
-import { useFetchRandomusers } from '@/react-query/queries'
+import { useFetchRandomusers, useSearchUsers } from '@/react-query/queries'
 import { useEffect, useState } from 'react'
 
 const AllUsers = () => {
@@ -10,6 +10,8 @@ const AllUsers = () => {
 
   const { data: suggestedUsers, isLoading: isSuggestedUsersLoading } =
     useFetchRandomusers()
+  const { data: searchedUsers, isLoading: isSearchedUsersLoading } =
+    useSearchUsers(searchValue)
 
   useEffect(() => {
     if (searchValue.length) {
@@ -18,6 +20,14 @@ const AllUsers = () => {
       setShowSearchResults(false)
     }
   }, [searchValue])
+
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      setSearchValue(inputValue.trim())
+    }, 500)
+
+    return () => clearTimeout(debounceTimeout)
+  }, [inputValue])
 
   return (
     <div className="flex flex-col flex-1 items-center overflow-scroll py-4 px-4 md:py-8 md:px-8 lg:p-14 scrollbar-styled min-h-[calc(100vh-108px)]">
@@ -39,29 +49,30 @@ const AllUsers = () => {
           />
         </div>
 
-        <h3 className="w-full max-w-5xl font-bold md:text-2xl text-light-primary">
-          Suggested User
-        </h3>
+        {!showSearchResults && (
+          <h3 className="w-full max-w-5xl font-bold md:text-2xl text-light-primary">
+            Suggested Users
+          </h3>
+        )}
 
         <div className="flex flex-wrap gap-9 w-full max-w-5xl">
-          {
-            // showSearchResults && searchedPosts?.length ? (
-            //   <GridPostList posts={searchedPosts} />
-            // ) : showSearchResults && !searchedPosts?.length ? (
-            //   <p className="text-light-muted text-center text-sm w-full">
-            //     No posts found
-            //   </p>
-            // ) : isSuggestedUsersLoading || isSearchPostLoading ? (
-            //   <p className="text-white">Loading</p>
-            // ) :
-            suggestedUsers?.length ? (
-              <GridUserList users={suggestedUsers} />
+          {isSuggestedUsersLoading || isSearchedUsersLoading ? (
+            <SearchPeopleSkeleton />
+          ) : showSearchResults ? (
+            searchedUsers?.length ? (
+              <GridUserList users={searchedUsers} />
             ) : (
               <p className="text-light-muted text-center text-sm w-full">
-                No posts today
+                User not found
               </p>
             )
-          }
+          ) : suggestedUsers?.length ? (
+            <GridUserList users={suggestedUsers} />
+          ) : (
+            <p className="text-light-muted text-center text-sm w-full">
+              No suggested users
+            </p>
+          )}
         </div>
       </div>
     </div>

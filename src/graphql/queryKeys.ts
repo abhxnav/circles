@@ -3,4 +3,5 @@ export enum QUERY_KEYS {
   GET_POPULAR_POSTS = 'popularPosts',
   SEARCH_POSTS = 'searchPosts',
   GET_RANDOM_USERS = 'randomUsers',
+  SEARCH_USERS = 'searchUsers',
 }

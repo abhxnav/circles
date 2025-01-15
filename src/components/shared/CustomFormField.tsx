@@ -16,7 +16,7 @@ import {
 } from '@/components/ui'
 import clsx from 'clsx'
 import { FileUploader, MentionSearchListSkeleton } from '@/components'
-import { searchUsers } from '@/actions/users.actions'
+import { useSearchUsers } from '@/react-query/queries'
 
 interface CustomFormFieldProps<T extends FieldValues> {
   control: Control<T>
@@ -41,31 +41,17 @@ const RenderField = <T extends FieldValues>({
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [searchResults, setSearchResults] = useState<User[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [inputValue, setInputValue] = useState('')
 
-  const fetchUsers = async (query: string) => {
-    setIsLoading(true)
-    try {
-      const { data, success, message } = await searchUsers(query)
-      if (!success) throw new Error(message)
-
-      setSearchResults(data || [])
-    } catch (error) {
-      console.error('Error fetching users:', error)
-      setSearchResults([])
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const { data: searchResults, isLoading } = useSearchUsers(searchQuery)
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
-      if (searchQuery.trim()) fetchUsers(searchQuery)
-    }, 300)
+      setSearchQuery(inputValue)
+    }, 500)
 
     return () => clearTimeout(debounceTimeout)
-  }, [searchQuery])
+  }, [inputValue])
 
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible)
@@ -148,8 +134,8 @@ const RenderField = <T extends FieldValues>({
               {/* Search Bar */}
               <Input
                 placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 className={clsx(
                   'h-10 bg-dark-secondary border-none text-light-primary placeholder:text-light-muted focus-visible:ring-1 focus-visible:ring-offset-1 ring-offset-light-muted',
                   className
@@ -198,8 +184,8 @@ const RenderField = <T extends FieldValues>({
                 <MentionSearchListSkeleton />
               ) : (
                 <div className="flex flex-col gap-2 mt-4 shadow-lg h-60 overflow-auto scrollbar-styled">
-                  {searchResults.length > 0 ? (
-                    searchResults.map((user) => {
+                  {searchResults?.length > 0 ? (
+                    searchResults.map((user: User) => {
                       return (
                         <div
                           key={user.id}
