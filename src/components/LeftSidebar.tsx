@@ -63,7 +63,7 @@ const LeftSidebar = () => {
         </ul>
 
         <div className="flex items-center justify-between">
-          <Link to={`/user/${user?.id}`} className="flex items-center gap-3">
+          <Link to={`/profile/${user?.id}`} className="flex items-center gap-3">
             <img
               src={user?.avatar_url || '/assets/images/avatar-placeholder.png'}
               alt={user?.username}
