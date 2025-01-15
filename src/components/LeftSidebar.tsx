@@ -1,7 +1,7 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Logo } from '@/components'
 import { useUserContext } from '@/context/UserContext'
-import { sidebarLinks } from '@/constants'
+import { navLinks } from '@/constants'
 import { useLogout } from '@/react-query/mutations'
 import { useToast } from '@/hooks/use-toast'
 
@@ -32,7 +32,7 @@ const LeftSidebar = () => {
 
       <div className="flex flex-col justify-between h-full">
         <ul className="flex flex-col gap-6">
-          {sidebarLinks.map((link: NavLink) => {
+          {navLinks.map((link: NavLink) => {
             const isActive = pathname === link.route
 
             return (

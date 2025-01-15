@@ -7,7 +7,7 @@ import {
   likePost,
   unlikePost,
 } from '@/actions/posts.actions'
-import { QUERY_KEYS } from '@/graphql/posts/queryKeys'
+import { QUERY_KEYS } from '@/graphql/queryKeys'
 
 export const useSignUpUser = () => {
   return useMutation({

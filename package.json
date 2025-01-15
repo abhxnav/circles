@@ -23,6 +23,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "graphql": "^16.10.0",
+    "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@types/lodash": "^4.17.14",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

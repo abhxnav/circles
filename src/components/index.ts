@@ -18,3 +18,5 @@ export { default as PostCardSkeleton } from '@/components/loaders/PostCardSkelet
 export { default as SearchResults } from '@/components/SearchResults'
 export { default as GridPostList } from '@/components/GridPostList'
 export { default as GridPostCard } from '@/components/GridPostCard'
+export { default as GridUserList } from '@/components/GridUserList'
+export { default as GridUserCard } from '@/components/GridUserCard'

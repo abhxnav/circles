@@ -1,4 +1,4 @@
-import { bottombarLinks } from '@/constants'
+import { navLinks } from '@/constants'
 import { NavLink, useLocation } from 'react-router-dom'
 
 const BottomBar = () => {
@@ -6,7 +6,7 @@ const BottomBar = () => {
 
   return (
     <section className="z-50 flex items-center justify-around w-full sticky bottom-0 bg-dark-secondary py-2 md:hidden">
-      {bottombarLinks.map((link: NavLink) => {
+      {navLinks.map((link: NavLink) => {
         const isActive = pathname === link.route
 
         return (
