@@ -10,6 +10,7 @@ export { default as PostCard } from '@/components/shared/PostCard'
 export { default as PostStats } from '@/components/shared/PostStats'
 export { default as PostPopup } from '@/components/shared/PostPopup'
 export { default as UserStat } from '@/components/shared/UserStat'
+export { default as FollowButton } from '@/components/FollowButton'
 
 export { default as PostForm } from '@/components/forms/PostForm'
 

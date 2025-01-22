@@ -5,6 +5,7 @@ interface User {
   avatar_url: string
   email?: string
   createdAt?: string
+  isFollowing?: boolean
 }
 
 interface UserContextType {

@@ -4,4 +4,7 @@ export enum QUERY_KEYS {
   SEARCH_POSTS = 'searchPosts',
   GET_RANDOM_USERS = 'randomUsers',
   SEARCH_USERS = 'searchUsers',
+  FOLLOWERS = 'followers',
+  FOLLOWING = 'following',
+  IS_FOLLOWING = 'isFollowing',
 }

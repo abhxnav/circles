@@ -1,15 +1,18 @@
 import { GridUserList, Header, SearchPeopleSkeleton } from '@/components'
 import { Input } from '@/components/ui'
-import { useFetchRandomusers, useSearchUsers } from '@/react-query/queries'
+import { useUserContext } from '@/context/UserContext'
+import { useFetchRandomUsers, useSearchUsers } from '@/react-query/queries'
 import { useEffect, useState } from 'react'
 
 const AllUsers = () => {
+  const { user } = useUserContext()
+
   const [inputValue, setInputValue] = useState('') // Immediate input from user
   const [searchValue, setSearchValue] = useState('') // Debounced value
   const [showSearchResults, setShowSearchResults] = useState(false)
 
   const { data: suggestedUsers, isLoading: isSuggestedUsersLoading } =
-    useFetchRandomusers()
+    useFetchRandomUsers(user?.id)
   const { data: searchedUsers, isLoading: isSearchedUsersLoading } =
     useSearchUsers(searchValue)
 

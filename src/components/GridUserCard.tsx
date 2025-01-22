@@ -1,17 +1,10 @@
-import { useState } from 'react'
-import { Button } from './ui'
+import { FollowButton } from '@/components'
 
 interface GridUserCardProps {
   user: User
 }
 
 const GridUserCard = ({ user }: GridUserCardProps) => {
-  const [following, setFollowing] = useState(false)
-
-  const handleFollow = () => {
-    setFollowing(!following)
-  }
-
   return (
     <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dark-muted overflow-hidden cursor-pointer size-full bg-dark-secondary p-6">
       <img
@@ -27,26 +20,10 @@ const GridUserCard = ({ user }: GridUserCardProps) => {
         <p className="text-light-muted whitespace-nowrap">{user.name}</p>
       </div>
 
-      <Button
-        onClick={handleFollow}
-        className={`${
-          following
-            ? 'bg-dark-muted/50 hover:bg-dark-muted/70'
-            : 'bg-accent-coral hover:bg-accent-coral/90'
-        } !border-none !outline-none flex items-center justify-center gap-1`}
-      >
-        <p
-          className={`${
-            following ? 'text-light-secondary' : 'text-dark-primary'
-          } font-semibold`}
-        >
-          {following ? 'Following' : 'Follow'}
-        </p>
-        <img
-          src={`/assets/icons/${following ? 'check' : 'plus'}.svg`}
-          className="size-4"
-        />
-      </Button>
+      <FollowButton
+        followeeId={user?.id}
+        isFollowing={user?.isFollowing || false}
+      />
     </div>
   )
 }

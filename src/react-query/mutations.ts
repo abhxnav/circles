@@ -8,6 +8,7 @@ import {
   unlikePost,
 } from '@/actions/posts.actions'
 import { QUERY_KEYS } from '@/graphql/queryKeys'
+import { followUser, unfollowUser } from '@/actions/users.actions'
 
 export const useSignUpUser = () => {
   return useMutation({
@@ -33,8 +34,9 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: createPost,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_RECENT_POSTS, QUERY_KEYS.GET_POPULAR_POSTS],
+        queryKey: [QUERY_KEYS.GET_POPULAR_POSTS],
       })
     },
   })
@@ -47,6 +49,9 @@ export const useCreateMentions = () => {
     mutationFn: createMentions,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POPULAR_POSTS],
+      })
     },
   })
 }
@@ -102,6 +107,34 @@ export const useUnlikePost = () => {
     mutationFn: unlikePost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RECENT_POSTS] })
+    },
+  })
+}
+
+export const useFollowUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: followUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FOLLOWERS] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FOLLOWING] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RANDOM_USERS] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SEARCH_USERS] })
+    },
+  })
+}
+
+export const useUnfollowUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: unfollowUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FOLLOWERS] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FOLLOWING] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RANDOM_USERS] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SEARCH_USERS] })
     },
   })
 }
