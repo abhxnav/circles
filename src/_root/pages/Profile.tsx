@@ -10,16 +10,46 @@ import {
   useFetchUserPosts,
   useIsFollowing,
 } from '@/react-query/queries'
+import { Loader2 } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 const Profile = () => {
+  const observerRef = useRef<HTMLDivElement>(null)
+
   const { userId } = useParams<{ userId: string }>()
   const { user } = useUserContext()
 
   const { data: userProfile } = useFetchUserDetails(userId!)
-  const { data: posts, isLoading: isPostsLoading } = useFetchUserPosts(userId!)
+
+  const {
+    data: postsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isPostsLoading,
+  } = useFetchUserPosts(userId!)
+  const posts = postsData?.pages.flatMap((page: any) => page.posts) || []
+
   const { data } = useIsFollowing(user?.id, userId!)
   const isFollowing = data?.followsCollection?.edges?.length > 0
+
+  useEffect(() => {
+    if (!observerRef.current || !hasNextPage || isFetchingNextPage) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1 }
+    )
+
+    observer.observe(observerRef.current)
+
+    return () => observer.disconnect()
+  }, [observerRef.current, hasNextPage, isFetchingNextPage])
 
   return (
     <div className="flex flex-col gap-10 flex-1 items-center overflow-scroll py-4 px-4 md:py-8 md:px-8 lg:p-14 scrollbar-styled min-h-[calc(100vh-108px)]">
@@ -59,7 +89,18 @@ const Profile = () => {
           {isPostsLoading ? (
             <SearchPostsSkeleton />
           ) : posts?.length! > 0 ? (
-            <GridPostList posts={posts!} />
+            <>
+              <GridPostList posts={posts} />
+              {hasNextPage && <div ref={observerRef} />}
+              {isFetchingNextPage && (
+                <div className="flex items-center justify-center w-full">
+                  <Loader2
+                    size={40}
+                    className="animate-spin text-accent-coral text-center"
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <p className="text-light-muted text-center text-sm w-full">
               No posts yet

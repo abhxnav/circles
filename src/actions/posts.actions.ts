@@ -187,7 +187,13 @@ export const unlikePost = async ({ filter }: { filter: any }) => {
   return data
 }
 
-export const searchPosts = async ({ searchTerm, pageParam = null }) => {
+export const searchPosts = async ({
+  searchTerm,
+  pageParam = null,
+}: {
+  searchTerm: string
+  pageParam?: any
+}) => {
   const wildcardSearch = `%${searchTerm}%`
 
   const { data } = await gqlClient.query({
@@ -205,12 +211,24 @@ export const searchPosts = async ({ searchTerm, pageParam = null }) => {
   }
 }
 
-export const fetchUserPosts = async (authorId: string) => {
+export const fetchUserPosts = async ({
+  authorId,
+  pageParam = null,
+}: {
+  authorId: string
+  pageParam?: any
+}) => {
   const { data } = await gqlClient.query({
     query: FETCH_USER_POSTS,
-    variables: { authorId },
+    variables: { authorId, cursor: pageParam, limit: 10 },
   })
+
   const edges = data?.postsCollection?.edges || []
   const posts = await processPosts(edges)
-  return posts || []
+
+  return {
+    posts,
+    nextCursor: data?.postsCollection?.pageInfo?.endCursor,
+    hasNextPage: data?.postsCollection?.pageInfo?.hasNextPage,
+  }
 }

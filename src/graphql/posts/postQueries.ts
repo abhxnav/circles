@@ -153,10 +153,12 @@ export const SEARCH_POSTS = gql`
 `
 
 export const FETCH_USER_POSTS = gql`
-  query FetchUserPosts($authorId: UUID!) {
+  query FetchUserPosts($authorId: UUID!, $cursor: String, $limit: Int!) {
     postsCollection(
       filter: { author_id: { eq: $authorId } }
       orderBy: [{ created_at: DescNullsLast }]
+      after: $cursor
+      first: $limit
     ) {
       edges {
         node {
@@ -181,8 +183,8 @@ export const FETCH_USER_POSTS = gql`
         }
       }
       pageInfo {
+        endCursor
         hasNextPage
-        hasPreviousPage
       }
     }
   }

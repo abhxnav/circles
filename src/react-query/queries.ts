@@ -82,10 +82,11 @@ export const useFetchUserDetails = (userId: string) => {
 }
 
 export const useFetchUserPosts = (authorId: string) => {
-  return useQuery({
-    queryKey: ['user-posts', authorId],
-    queryFn: () => fetchUserPosts(authorId),
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.USER_POSTS, authorId],
+    queryFn: ({ pageParam }) => fetchUserPosts({ authorId, pageParam }),
     enabled: !!authorId,
-    staleTime: 10 * 60 * 1000,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
   })
 }
