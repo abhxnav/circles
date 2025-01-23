@@ -43,23 +43,25 @@ export const useSearchPosts = (searchTerm: string) => {
 }
 
 export const useFetchRandomUsers = (userId: string) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_RANDOM_USERS, userId],
-    queryFn: () => fetchRandomUsers(userId),
-    staleTime: 0,
-    retry: 3,
+    queryFn: ({ pageParam }) => fetchRandomUsers({ userId, pageParam }),
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
   })
 }
 
 export const useSearchUsers = (searchTerm: string) => {
-  const { user } = useUserContext()
+  const {
+    user: { id },
+  } = useUserContext()
 
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [QUERY_KEYS.SEARCH_USERS, searchTerm],
-    queryFn: () => searchUsers(searchTerm, user?.id),
+    queryFn: ({ pageParam }) => searchUsers({ searchTerm, id, pageParam }),
     enabled: !!searchTerm,
-    staleTime: 0,
-    retry: 3,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
   })
 }
 

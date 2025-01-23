@@ -25,19 +25,40 @@ export const getAllUsers = async () => {
   }
 }
 
-export const searchUsers = async (searchTerm: string, userId: string) => {
+export const searchUsers = async ({
+  searchTerm,
+  userId,
+  pageParam = null,
+}: {
+  searchTerm: string
+  userId: string
+  pageParam: any
+}) => {
   const { data } = await gqlClient.query({
     query: SEARCH_USERS,
-    variables: { searchTerm: `%${searchTerm}%`, userId },
+    variables: { searchTerm: `%${searchTerm}%`, userId, pageParam, limit: 10 },
   })
 
-  return data?.usersCollection?.edges?.map((edge: any) => edge.node) || []
+  const searchedUsers =
+    data?.usersCollection?.edges?.map((edge: any) => edge.node) || []
+
+  return {
+    users: searchedUsers,
+    nextCursor: data?.usersCollection?.pageInfo?.endCursor,
+    hasNextPage: data?.usersCollection?.pageInfo?.hasNextPage,
+  }
 }
 
-export const fetchRandomUsers = async (userId: string) => {
+export const fetchRandomUsers = async ({
+  userId,
+  pageParam = null,
+}: {
+  userId: string
+  pageParam: any
+}) => {
   const { data } = await gqlClient.query({
     query: FETCH_RANDOM_USERS,
-    variables: { userId },
+    variables: { userId, cursor: pageParam, limit: 10 },
   })
 
   const users =
@@ -47,7 +68,13 @@ export const fetchRandomUsers = async (userId: string) => {
     })) || []
 
   // Randomize users and return the first 10
-  return shuffle(users).slice(0, 10)
+  const shuffledUsers = shuffle(users).slice(0, 10)
+
+  return {
+    users: shuffledUsers,
+    nextCursor: data?.usersCollection?.pageInfo?.endCursor,
+    hasNextPage: data?.usersCollection?.pageInfo?.hasNextPage,
+  }
 }
 
 export const followUser = async ({

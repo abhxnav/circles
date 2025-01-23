@@ -2,19 +2,36 @@ import { GridUserList, Header, SearchPeopleSkeleton } from '@/components'
 import { Input } from '@/components/ui'
 import { useUserContext } from '@/context/UserContext'
 import { useFetchRandomUsers, useSearchUsers } from '@/react-query/queries'
-import { useEffect, useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 const AllUsers = () => {
   const { user } = useUserContext()
+  const observerRef = useRef<HTMLDivElement>(null)
 
   const [inputValue, setInputValue] = useState('') // Immediate input from user
   const [searchValue, setSearchValue] = useState('') // Debounced value
   const [showSearchResults, setShowSearchResults] = useState(false)
 
-  const { data: suggestedUsers, isLoading: isSuggestedUsersLoading } =
-    useFetchRandomUsers(user?.id)
-  const { data: searchedUsers, isLoading: isSearchedUsersLoading } =
-    useSearchUsers(searchValue)
+  const {
+    data: suggestedUsersData,
+    isLoading: isSuggestedUsersLoading,
+    fetchNextPage: fetchSuggestedNextPage,
+    hasNextPage: hasSuggestedNextPage,
+    isFetchingNextPage: isFetchingSuggestedNextPage,
+  } = useFetchRandomUsers(user?.id)
+  const suggestedUsers =
+    suggestedUsersData?.pages.flatMap((page: any) => page.users) || []
+
+  const {
+    data: searchedUsersData,
+    isLoading: isSearchedUsersLoading,
+    fetchNextPage: fetchSearchedNextPage,
+    hasNextPage: hasSearchedNextPage,
+    isFetchingNextPage: isFetchingSearchedNextPage,
+  } = useSearchUsers(searchValue)
+  const searchedUsers =
+    searchedUsersData?.pages.flatMap((page: any) => page.users) || []
 
   useEffect(() => {
     if (searchValue.length) {
@@ -31,6 +48,31 @@ const AllUsers = () => {
 
     return () => clearTimeout(debounceTimeout)
   }, [inputValue])
+
+  const fetchNextPage = () => {
+    if (showSearchResults && hasSearchedNextPage) {
+      fetchSearchedNextPage()
+    } else if (!showSearchResults && hasSuggestedNextPage) {
+      fetchSuggestedNextPage()
+    }
+  }
+
+  useEffect(() => {
+    if (!observerRef.current) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1 }
+    )
+
+    observer.observe(observerRef.current)
+
+    return () => observer.disconnect()
+  }, [observerRef.current, hasSearchedNextPage, hasSuggestedNextPage])
 
   return (
     <div className="flex flex-col flex-1 items-center overflow-scroll py-4 px-4 md:py-8 md:px-8 lg:p-14 scrollbar-styled min-h-[calc(100vh-108px)]">
@@ -63,14 +105,36 @@ const AllUsers = () => {
             <SearchPeopleSkeleton />
           ) : showSearchResults ? (
             searchedUsers?.length ? (
-              <GridUserList users={searchedUsers} />
+              <>
+                <GridUserList users={searchedUsers} />
+                {hasSearchedNextPage && <div ref={observerRef} />}
+                {isFetchingSearchedNextPage && (
+                  <div className="flex items-center justify-center w-full">
+                    <Loader2
+                      size={40}
+                      className="animate-spin text-accent-coral text-center"
+                    />
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-light-muted text-center text-sm w-full">
                 User not found
               </p>
             )
           ) : suggestedUsers?.length ? (
-            <GridUserList users={suggestedUsers} />
+            <>
+              <GridUserList users={suggestedUsers} />
+              {hasSuggestedNextPage && <div ref={observerRef} />}
+              {isFetchingSuggestedNextPage && (
+                <div className="flex items-center justify-center w-full">
+                  <Loader2
+                    size={40}
+                    className="animate-spin text-accent-coral text-center"
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <p className="text-light-muted text-center text-sm w-full">
               No suggested users

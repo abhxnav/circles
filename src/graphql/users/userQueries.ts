@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client'
 
 export const FETCH_RANDOM_USERS = gql`
-  query FetchRandomUsers($userId: UUID!) {
-    usersCollection(filter: { id: { neq: $userId } }, first: 50) {
+  query FetchRandomUsers($userId: UUID!, $cursor: String, $limit: Int!) {
+    usersCollection(
+      filter: { id: { neq: $userId } }
+      after: $cursor
+      first: $limit
+    ) {
       edges {
         node {
           id
@@ -20,12 +24,16 @@ export const FETCH_RANDOM_USERS = gql`
           }
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
     }
   }
 `
 
 export const SEARCH_USERS = gql`
-  query SearchUsers($searchTerm: String!) {
+  query SearchUsers($searchTerm: String!, $cursor: String, $limit: Int!) {
     usersCollection(
       filter: {
         and: [
@@ -39,6 +47,8 @@ export const SEARCH_USERS = gql`
         ]
       }
       orderBy: [{ username: AscNullsLast }]
+      after: $cursor
+      first: $limit
     ) {
       edges {
         node {
@@ -47,6 +57,10 @@ export const SEARCH_USERS = gql`
           username
           avatar_url
         }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
       }
     }
   }
