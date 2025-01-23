@@ -8,6 +8,7 @@ import {
   FETCH_LIKES_FOR_POST,
   FETCH_POPULAR_POSTS,
   FETCH_RECENT_POSTS,
+  FETCH_USER_POSTS,
   FETCH_USERS_BY_IDS,
   SEARCH_POSTS,
 } from '@/graphql/posts/postQueries'
@@ -180,4 +181,14 @@ export const searchPosts = async (searchTerm: string) => {
 
   const edges = data?.postsCollection?.edges || []
   return processPosts(edges)
+}
+
+export const fetchUserPosts = async (authorId: string) => {
+  const { data } = await gqlClient.query({
+    query: FETCH_USER_POSTS,
+    variables: { authorId },
+  })
+  const edges = data?.postsCollection?.edges || []
+  const posts = await processPosts(edges)
+  return posts || []
 }

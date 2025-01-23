@@ -121,6 +121,9 @@ export const useFollowUser = () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FOLLOWING] })
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RANDOM_USERS] })
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SEARCH_USERS] })
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.FETCH_USER_DETAILS],
+      })
     },
   })
 }
@@ -135,6 +138,9 @@ export const useUnfollowUser = () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FOLLOWING] })
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_RANDOM_USERS] })
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SEARCH_USERS] })
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.FETCH_USER_DETAILS],
+      })
     },
   })
 }

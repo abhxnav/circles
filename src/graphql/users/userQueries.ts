@@ -51,3 +51,39 @@ export const SEARCH_USERS = gql`
     }
   }
 `
+
+export const FETCH_USER_DETAILS = gql`
+  query FetchUserDetails($userId: UUID!) {
+    usersCollection(filter: { id: { eq: $userId } }) {
+      edges {
+        node {
+          id
+          name
+          username
+          avatar_url
+        }
+      }
+    }
+    postsCollection(filter: { author_id: { eq: $userId } }) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    followers: followsCollection(filter: { followee_id: { eq: $userId } }) {
+      edges {
+        node {
+          follower_id
+        }
+      }
+    }
+    following: followsCollection(filter: { follower_id: { eq: $userId } }) {
+      edges {
+        node {
+          followee_id
+        }
+      }
+    }
+  }
+`

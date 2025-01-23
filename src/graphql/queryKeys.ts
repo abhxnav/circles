@@ -7,4 +7,5 @@ export enum QUERY_KEYS {
   FOLLOWERS = 'followers',
   FOLLOWING = 'following',
   IS_FOLLOWING = 'isFollowing',
+  FETCH_USER_DETAILS = 'userDetails',
 }

@@ -4,7 +4,12 @@ import {
   IS_FOLLOWING,
   UNFOLLOW_USER,
 } from '@/graphql/users/userMutations'
-import { FETCH_RANDOM_USERS, SEARCH_USERS } from '@/graphql/users/userQueries'
+import {
+  FETCH_RANDOM_USERS,
+  FETCH_USER_DETAILS,
+  FETCH_USER_POSTS,
+  SEARCH_USERS,
+} from '@/graphql/users/userQueries'
 import { supabase } from '@/lib/supabase/config'
 import { shuffle } from 'lodash'
 
@@ -89,4 +94,25 @@ export const isFollowing = async ({
   })
 
   return data
+}
+
+export const FetchUserDetails = async (userId: string) => {
+  const { data } = await gqlClient.query({
+    query: FETCH_USER_DETAILS,
+    variables: { userId },
+  })
+
+  const user = data?.usersCollection?.edges[0]?.node || null
+  const postsCount = data?.postsCollection?.edges.length || 0
+  const followersCount = data?.followers?.edges.length || 0
+  const followingCount = data?.following?.edges.length || 0
+
+  return user
+    ? {
+        ...user,
+        postsCount,
+        followersCount,
+        followingCount,
+      }
+    : null
 }

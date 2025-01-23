@@ -135,3 +135,39 @@ export const SEARCH_POSTS = gql`
     }
   }
 `
+
+export const FETCH_USER_POSTS = gql`
+  query FetchUserPosts($authorId: UUID!) {
+    postsCollection(
+      filter: { author_id: { eq: $authorId } }
+      orderBy: [{ created_at: DescNullsLast }]
+    ) {
+      edges {
+        node {
+          id
+          content
+          image_url
+          author_id
+          created_at
+          users {
+            id
+            username
+            name
+            avatar_url
+          }
+          mentionsCollection {
+            edges {
+              node {
+                mentioned_users_id
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+`

@@ -10,7 +10,7 @@ const GridPostCard = ({ post }: GridPostCardProps) => {
   const { user } = useUserContext()
   return (
     <PostPopup post={post} key={post.id}>
-      <div className="relative min-w-64 h-52 md:h-64">
+      <div className="relative h-52 md:h-64">
         <div className="flex rounded-xl border border-dark-muted overflow-hidden cursor-pointer size-full">
           {post.image_url ? (
             <img
