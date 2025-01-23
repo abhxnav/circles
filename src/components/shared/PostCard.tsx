@@ -61,9 +61,11 @@ const PostCard = ({ post }: PostCardProps) => {
           </Link>
 
           <div className="flex items-center gap-1">
-            <p className="font-medium text-sm lg:text-base lg:font-bold text-light-primary">
-              {post?.author?.username}
-            </p>
+            <Link to={`/profile/${post?.author?.id}`}>
+              <p className="font-medium text-sm lg:text-base lg:font-bold text-light-primary hover:underline">
+                {post?.author?.username}
+              </p>
+            </Link>
 
             {post?.mentionedUsers?.length > 0 && (
               <div className="flex items-center gap-1">

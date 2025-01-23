@@ -7,7 +7,6 @@ import {
 import {
   FETCH_RANDOM_USERS,
   FETCH_USER_DETAILS,
-  FETCH_USER_POSTS,
   SEARCH_USERS,
 } from '@/graphql/users/userQueries'
 import { supabase } from '@/lib/supabase/config'

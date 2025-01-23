@@ -8,6 +8,7 @@ import {
 import { PostStats } from '@/components'
 import { useUserContext } from '@/context/UserContext'
 import { getRelativeTime } from '@/lib/utils'
+import { Link } from 'react-router-dom'
 
 interface PostPopupProps {
   post: Post
@@ -24,17 +25,22 @@ const PostPopup = ({ post, children }: PostPopupProps) => {
       </DialogTrigger>
       <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw] max-h-[90vh] p-4">
         <DialogTitle className="text-light-primary flex items-center gap-1">
-          <div className="flex items-center gap-3">
-            <img
-              src={
-                post?.author?.avatar_url ||
-                '/assets/images/avatar-placeholder.png'
-              }
-              alt={post?.author?.username}
-              className="rounded-full size-8"
-            />
-            <p>{post.author.username}</p>
-          </div>
+          <Link to={`/profile/${post?.author?.id}`}>
+            <div className="flex items-center gap-3">
+              <img
+                src={
+                  post?.author?.avatar_url ||
+                  '/assets/images/avatar-placeholder.png'
+                }
+                alt={post?.author?.username}
+                className="rounded-full size-8"
+              />
+              <p className="text-light-primary hover:underline">
+                {post.author.username}
+              </p>
+            </div>
+          </Link>
+
           {post?.mentionedUsers?.length > 0 && (
             <div className="flex items-center gap-1 mt-1">
               <p className="font-medium text-sm text-light-secondary">and</p>
