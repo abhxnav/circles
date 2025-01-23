@@ -1,8 +1,30 @@
 import { Header, PostCard, PostCardSkeleton } from '@/components'
 import { useFetchRecentPosts } from '@/react-query/queries'
+import { Loader2 } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 
 const Home = () => {
-  const { data: posts, isLoading: isPostLoading } = useFetchRecentPosts()
+  const observerRef = useRef<HTMLDivElement>(null)
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useFetchRecentPosts()
+  const posts = data?.pages.flatMap((page) => page.posts) || []
+
+  useEffect(() => {
+    if (!observerRef.current || !hasNextPage || isFetchingNextPage) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1 }
+    )
+
+    observer.observe(observerRef.current)
+    return () => observer.disconnect()
+  }, [observerRef.current, hasNextPage, isFetchingNextPage])
 
   return (
     <div className="flex flex-1">
@@ -13,7 +35,8 @@ const Home = () => {
             iconUrl="/assets/icons/home.svg"
             className="hidden md:flex"
           />
-          {isPostLoading && !posts ? (
+
+          {isLoading && !posts ? (
             <ul className="flex flex-col gap-5 lg:gap-7 w-full">
               {Array.from({ length: 3 }).map((_, index) => (
                 <li key={index}>
@@ -29,6 +52,17 @@ const Home = () => {
                 </li>
               ))}
             </ul>
+          )}
+
+          <div ref={observerRef} />
+
+          {isFetchingNextPage && (
+            <div className="flex items-center justify-center w-full">
+              <Loader2
+                size={40}
+                className="animate-spin text-accent-coral text-center"
+              />
+            </div>
           )}
         </div>
       </div>

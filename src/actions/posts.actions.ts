@@ -106,26 +106,42 @@ const processPosts = async (edges: any[]) => {
   )
 }
 
-export const fetchRecentPosts = async () => {
+export const fetchRecentPosts = async ({ pageParam = null }) => {
   const { data } = await gqlClient.query({
     query: FETCH_RECENT_POSTS,
+    variables: { cursor: pageParam, limit: 10 },
   })
+
   const edges = data?.postsCollection?.edges || []
-  return processPosts(edges) || []
+  const posts = (await processPosts(edges)) || []
+
+  return {
+    posts,
+    nextCursor: data.postsCollection.pageInfo.endCursor,
+    hasNextPage: data.postsCollection.pageInfo.hasNextPage,
+  }
 }
 
-export const fetchPopularPosts = async () => {
+export const fetchPopularPosts = async ({ pageParam = null }) => {
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
   const isoDate = today.toISOString()
 
   const { data } = await gqlClient.query({
     query: FETCH_POPULAR_POSTS,
-    variables: { date: isoDate },
+    variables: { date: isoDate, cursor: pageParam, limit: 10 },
   })
+
   const edges = data?.postsCollection?.edges || []
   const posts = await processPosts(edges)
-  return posts.sort((a, b) => b.likes.length - a.likes.length) || []
+  const sortedPosts =
+    posts.sort((a, b) => b.likes.length - a.likes.length) || []
+
+  return {
+    posts: sortedPosts,
+    nextCursor: data.postsCollection.pageInfo.endCursor,
+    hasNextPage: data.postsCollection.pageInfo.hasNextPage,
+  }
 }
 
 const fetchUsersByIds = async (userIds: string[]) => {
@@ -171,16 +187,22 @@ export const unlikePost = async ({ filter }: { filter: any }) => {
   return data
 }
 
-export const searchPosts = async (searchTerm: string) => {
+export const searchPosts = async ({ searchTerm, pageParam = null }) => {
   const wildcardSearch = `%${searchTerm}%`
 
   const { data } = await gqlClient.query({
     query: SEARCH_POSTS,
-    variables: { searchTerm: wildcardSearch },
+    variables: { searchTerm: wildcardSearch, cursor: pageParam, limit: 10 },
   })
 
   const edges = data?.postsCollection?.edges || []
-  return processPosts(edges)
+  const posts = await processPosts(edges)
+
+  return {
+    posts,
+    nextCursor: data.postsCollection.pageInfo.endCursor,
+    hasNextPage: data.postsCollection.pageInfo.hasNextPage,
+  }
 }
 
 export const fetchUserPosts = async (authorId: string) => {

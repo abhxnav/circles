@@ -12,29 +12,33 @@ import {
 } from '@/actions/users.actions'
 import { useUserContext } from '@/context/UserContext'
 import { QUERY_KEYS } from '@/graphql/queryKeys'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 export const useFetchRecentPosts = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
     queryFn: fetchRecentPosts,
-    retry: 3,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
   })
 }
 
 export const useFetchPopularPosts = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_POPULAR_POSTS],
     queryFn: fetchPopularPosts,
-    retry: 3,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
   })
 }
 
 export const useSearchPosts = (searchTerm: string) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm],
-    queryFn: () => searchPosts(searchTerm),
+    queryFn: ({ pageParam }) => searchPosts({ searchTerm, pageParam }),
     enabled: !!searchTerm,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
   })
 }
 

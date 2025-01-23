@@ -1,17 +1,35 @@
 import { GridPostList, Header, SearchPostsSkeleton } from '@/components'
 import { Input } from '@/components/ui'
 import { useFetchPopularPosts, useSearchPosts } from '@/react-query/queries'
-import { useEffect, useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 const Explore = () => {
+  const observerRef = useRef<HTMLDivElement>(null)
+
   const [inputValue, setInputValue] = useState('') // Immediate input from user
   const [searchValue, setSearchValue] = useState('') // Debounced value
   const [showSearchResults, setShowSearchResults] = useState(false)
 
-  const { data: popularPosts, isLoading: isPopularPostLoading } =
-    useFetchPopularPosts()
-  const { data: searchedPosts, isLoading: isSearchPostLoading } =
-    useSearchPosts(searchValue)
+  const {
+    data: popularPostsData,
+    isLoading: isPopularPostLoading,
+    fetchNextPage: fetchPopularNextPage,
+    hasNextPage: hasPopularNextPage,
+    isFetchingNextPage: isFetchingPopularNextPage,
+  } = useFetchPopularPosts()
+  const popularPosts =
+    popularPostsData?.pages.flatMap((page) => page.posts) || []
+
+  const {
+    data: searchedPostsData,
+    isLoading: isSearchPostLoading,
+    fetchNextPage: fetchSearchedNextPage,
+    hasNextPage: hasSearchNextPage,
+    isFetchingNextPage: isFetchingSearchNextPage,
+  } = useSearchPosts(searchValue)
+  const searchedPosts =
+    searchedPostsData?.pages.flatMap((page) => page.posts) || []
 
   useEffect(() => {
     if (searchValue !== '') {
@@ -28,6 +46,31 @@ const Explore = () => {
 
     return () => clearTimeout(debounceTimeout)
   }, [inputValue])
+
+  const fetchNextPage = () => {
+    if (showSearchResults && hasSearchNextPage) {
+      fetchSearchedNextPage()
+    } else if (!showSearchResults && hasPopularNextPage) {
+      fetchPopularNextPage()
+    }
+  }
+
+  useEffect(() => {
+    if (!observerRef.current) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1 }
+    )
+
+    observer.observe(observerRef.current)
+
+    return () => observer.disconnect()
+  }, [observerRef.current, hasSearchNextPage, hasPopularNextPage])
 
   return (
     <div className="flex flex-col flex-1 items-center overflow-scroll py-4 px-4 md:py-8 md:px-8 lg:p-14 scrollbar-styled min-h-[calc(100vh-108px)]">
@@ -58,15 +101,37 @@ const Explore = () => {
           {isPopularPostLoading || isSearchPostLoading ? (
             <SearchPostsSkeleton />
           ) : showSearchResults ? (
-            searchedPosts?.length ? (
-              <GridPostList posts={searchedPosts} />
+            searchedPosts?.length > 0 ? (
+              <>
+                <GridPostList posts={searchedPosts} />
+                {hasSearchNextPage && <div ref={observerRef} />}
+                {isFetchingSearchNextPage && (
+                  <div className="flex items-center justify-center w-full">
+                    <Loader2
+                      size={40}
+                      className="animate-spin text-accent-coral text-center"
+                    />
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-light-muted text-center text-sm w-full">
                 No posts found
               </p>
             )
-          ) : popularPosts?.length ? (
-            <GridPostList posts={popularPosts} />
+          ) : popularPosts?.length > 0 ? (
+            <>
+              <GridPostList posts={popularPosts} />
+              {hasPopularNextPage && <div ref={observerRef} className="h-10" />}
+              {isFetchingPopularNextPage && (
+                <div className="flex items-center justify-center w-full">
+                  <Loader2
+                    size={40}
+                    className="animate-spin text-accent-coral text-center"
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <p className="text-light-muted text-center text-sm w-full">
               No posts today

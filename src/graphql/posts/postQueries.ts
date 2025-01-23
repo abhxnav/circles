@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client'
 
 export const FETCH_RECENT_POSTS = gql`
-  query FetchRecentPosts {
-    postsCollection(orderBy: [{ created_at: DescNullsLast }], first: 20) {
+  query FetchRecentPosts($cursor: String, $limit: Int!) {
+    postsCollection(
+      orderBy: [{ created_at: DescNullsLast }]
+      first: $limit
+      after: $cursor
+    ) {
       edges {
         node {
           id
@@ -26,8 +30,8 @@ export const FETCH_RECENT_POSTS = gql`
         }
       }
       pageInfo {
+        endCursor
         hasNextPage
-        hasPreviousPage
       }
     }
   }
@@ -75,8 +79,12 @@ export const FETCH_LIKES_FOR_POST = gql`
 `
 
 export const FETCH_POPULAR_POSTS = gql`
-  query FetchPopularPosts($date: Date!, $orderBy: [postsOrderBy!]) {
-    postsCollection(filter: { created_at: { gte: $date } }, first: 20) {
+  query FetchPopularPosts($date: Date!, $cursor: String, $limit: Int!) {
+    postsCollection(
+      filter: { created_at: { gte: $date } }
+      after: $cursor
+      first: $limit
+    ) {
       edges {
         node {
           id
@@ -100,16 +108,20 @@ export const FETCH_POPULAR_POSTS = gql`
         }
       }
       pageInfo {
+        endCursor
         hasNextPage
-        hasPreviousPage
       }
     }
   }
 `
 
 export const SEARCH_POSTS = gql`
-  query SearchPosts($searchTerm: String!) {
-    postsCollection(filter: { content: { ilike: $searchTerm } }) {
+  query SearchPosts($searchTerm: String!, $cursor: String, $limit: Int!) {
+    postsCollection(
+      filter: { content: { ilike: $searchTerm } }
+      after: $cursor
+      first: $limit
+    ) {
       edges {
         node {
           id
@@ -131,6 +143,10 @@ export const SEARCH_POSTS = gql`
             }
           }
         }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
       }
     }
   }
