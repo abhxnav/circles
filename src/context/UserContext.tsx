@@ -94,16 +94,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // Run an initial check for user authentication when the provider mounts
   useEffect(() => {
-    if (
-      localStorage.getItem(localStorageKey) === '[]' ||
-      localStorage.getItem(localStorageKey) === null
-    ) {
-      navigate('/sign-in')
-    } else {
-      navigate('/')
+    const checkAndNavigate = async () => {
+      const authSuccess = await checkAuthUser() // Check if the user is authenticated
+
+      if (!authSuccess) {
+        navigate('/sign-in') // Redirect to sign-in if the user is not authenticated
+      }
     }
 
-    checkAuthUser() // Check if the user is already authenticated (e.g., on app load)
+    checkAndNavigate()
   }, [])
 
   const value = {

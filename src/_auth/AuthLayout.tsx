@@ -2,10 +2,11 @@ import { Navigate, Outlet } from 'react-router-dom'
 import Lottie, { LottieRefCurrentProps } from 'lottie-react'
 import AuthAnimation from '@/animations/social-media-graphics.json'
 import { useRef } from 'react'
+import { useUserContext } from '@/context/UserContext'
 
 const AuthLayout = () => {
   const animationRef = useRef<LottieRefCurrentProps | null>(null)
-  const isAuthenticated = false
+  const { isAuthenticated } = useUserContext()
 
   return (
     <>
