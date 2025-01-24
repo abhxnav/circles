@@ -78,7 +78,7 @@ export const FETCH_USER_DETAILS = gql`
         }
       }
     }
-    postsCollection(filter: { author_id: { eq: $userId } }) {
+    postsCollection(filter: { author_id: { eq: $userId } }, first: 100) {
       edges {
         node {
           id
@@ -97,6 +97,22 @@ export const FETCH_USER_DETAILS = gql`
         node {
           followee_id
         }
+      }
+    }
+  }
+`
+
+export const FETCH_POSTS_COUNT = gql`
+  query FetchPostsCount($authorId: UUID!, $cursor: String) {
+    postsCollection(filter: { author_id: { eq: $authorId } }, after: $cursor) {
+      edges {
+        node {
+          id
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }

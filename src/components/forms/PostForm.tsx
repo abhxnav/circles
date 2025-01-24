@@ -109,7 +109,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
       }
 
       if (postId) {
-        await deletePost({ postId }) // Delete the post
+        await deletePost(postId) // Delete the post
       }
 
       toast({ description: 'Failed to create post', variant: 'destructive' })
@@ -136,7 +136,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
           post={post}
         />
         <Dialog>
-          <DialogTrigger className="flex items-center gap-2 w-fit border-none hover:opacity-70 py-2 px-4">
+          <DialogTrigger className="flex items-center gap-2 w-fit border-none hover:opacity-70 py-2 px-4 bg-transparent">
             <img
               src="/assets/icons/user-search.svg"
               alt="user"

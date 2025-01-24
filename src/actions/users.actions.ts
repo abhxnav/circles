@@ -5,6 +5,7 @@ import {
   UNFOLLOW_USER,
 } from '@/graphql/users/userMutations'
 import {
+  FETCH_POSTS_COUNT,
   FETCH_RANDOM_USERS,
   FETCH_USER_DETAILS,
   SEARCH_USERS,
@@ -127,11 +128,11 @@ export const FetchUserDetails = async (userId: string) => {
     query: FETCH_USER_DETAILS,
     variables: { userId },
   })
-
   const user = data?.usersCollection?.edges[0]?.node || null
-  const postsCount = data?.postsCollection?.edges.length || 0
   const followersCount = data?.followers?.edges.length || 0
   const followingCount = data?.following?.edges.length || 0
+
+  const postsCount = await fetchPostsCount(userId)
 
   return user
     ? {
@@ -141,4 +142,24 @@ export const FetchUserDetails = async (userId: string) => {
         followingCount,
       }
     : null
+}
+
+const fetchPostsCount = async (authorId: string) => {
+  let totalPostsCount = 0
+  let hasNextPage = true
+  let cursor = null
+
+  while (hasNextPage) {
+    const { data }: any = await gqlClient.query({
+      query: FETCH_POSTS_COUNT,
+      variables: { authorId, cursor },
+    })
+
+    totalPostsCount += data?.postsCollection?.edges?.length || 0
+
+    hasNextPage = data?.postsCollection?.pageInfo?.hasNextPage
+    cursor = data?.postsCollection?.pageInfo?.endCursor
+  }
+
+  return totalPostsCount
 }
