@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Control,
   ControllerRenderProps,
@@ -17,6 +17,7 @@ import {
 import clsx from 'clsx'
 import { FileUploader, MentionSearchListSkeleton } from '@/components'
 import { useSearchUsers } from '@/react-query/queries'
+import { Loader2 } from 'lucide-react'
 
 interface CustomFormFieldProps<T extends FieldValues> {
   control: Control<T>
@@ -39,11 +40,21 @@ const RenderField = <T extends FieldValues>({
 }) => {
   const { fieldType, placeholder, className, post } = props
 
+  const observerRef = useRef<HTMLDivElement>(null)
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [inputValue, setInputValue] = useState('')
 
-  const { data: searchResults, isLoading } = useSearchUsers(searchQuery)
+  const {
+    data: searchedUsersData,
+    isLoading,
+    fetchNextPage: fetchSearchedNextPage,
+    hasNextPage: hasSearchedNextPage,
+    isFetchingNextPage: isFetchingSearchedNextPage,
+  } = useSearchUsers(searchQuery)
+  const searchResults =
+    searchedUsersData?.pages.flatMap((page: any) => page.users) || []
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
@@ -52,6 +63,29 @@ const RenderField = <T extends FieldValues>({
 
     return () => clearTimeout(debounceTimeout)
   }, [inputValue])
+
+  const fetchNextPage = () => {
+    if (hasSearchedNextPage) {
+      fetchSearchedNextPage()
+    }
+  }
+
+  useEffect(() => {
+    if (!observerRef.current) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1 }
+    )
+
+    observer.observe(observerRef.current)
+
+    return () => observer.disconnect()
+  }, [observerRef.current, hasSearchedNextPage])
 
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible)
@@ -91,6 +125,7 @@ const RenderField = <T extends FieldValues>({
           <div className="relative">
             <Input
               placeholder={placeholder}
+              type={isPasswordVisible ? 'text' : 'password'}
               className={clsx(
                 'h-12 bg-dark-secondary border-none text-light-primary placeholder:text-light-muted focus-visible:ring-1 focus-visible:ring-offset-1 ring-offset-light-muted pr-12',
                 className
@@ -184,9 +219,9 @@ const RenderField = <T extends FieldValues>({
                 <MentionSearchListSkeleton />
               ) : (
                 <div className="flex flex-col gap-2 mt-4 shadow-lg h-60 overflow-auto scrollbar-styled">
-                  {searchResults?.length > 0 ? (
-                    searchResults.map((user: User) => {
-                      return (
+                  {searchResults && searchResults?.length > 0 ? (
+                    searchResults.map((user: User) => (
+                      <>
                         <div
                           key={user.id}
                           onClick={() => {
@@ -211,8 +246,17 @@ const RenderField = <T extends FieldValues>({
                             </p>
                           </div>
                         </div>
-                      )
-                    })
+                        {hasSearchedNextPage && <div ref={observerRef} />}
+                        {isFetchingSearchedNextPage && (
+                          <div className="flex items-center justify-center w-full">
+                            <Loader2
+                              size={40}
+                              className="animate-spin text-accent-coral text-center"
+                            />
+                          </div>
+                        )}
+                      </>
+                    ))
                   ) : (
                     <p className="text-light-muted text-sm">
                       No results found.
