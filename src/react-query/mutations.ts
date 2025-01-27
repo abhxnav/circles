@@ -89,9 +89,20 @@ export const useDeletePost = () => {
         QUERY_KEYS.GET_RECENT_POSTS,
       ])
 
-      // Optimistically update the cache by removing the deleted post
-      queryClient.setQueryData([QUERY_KEYS.GET_RECENT_POSTS], (oldPosts: any) =>
-        oldPosts?.filter((post: any) => post.id !== postId)
+      // Optimistically update the cache
+      queryClient.setQueryData(
+        [QUERY_KEYS.GET_RECENT_POSTS],
+        (oldData: any) => {
+          if (!oldData || !oldData.pages) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              posts: page.posts.filter((post: any) => post.id !== postId),
+            })),
+          }
+        }
       )
 
       return { previousPosts } // Return the snapshot for rollback

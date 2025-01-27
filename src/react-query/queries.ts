@@ -16,7 +16,6 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 // Custom hook to fetch recent posts.
 export const useFetchRecentPosts = () => {
-  console.log('refect')
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_RECENT_POSTS], // Cache key for recent posts.
     queryFn: fetchRecentPosts, // Function to fetch recent posts.
