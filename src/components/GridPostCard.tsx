@@ -3,14 +3,17 @@ import { useUserContext } from '@/context/UserContext'
 import { truncateText } from '@/lib/utils'
 
 interface GridPostCardProps {
-  post: Post
+  post: Post // Post data including content, author, and image
 }
 
 const GridPostCard = ({ post }: GridPostCardProps) => {
-  const { user } = useUserContext()
+  const { user } = useUserContext() // Get the current user context
+
   return (
     <PostPopup post={post} key={post.id}>
+      {/* Container for the post card */}
       <div className="relative h-52 md:h-64">
+        {/* Display image or text content */}
         <div className="flex rounded-xl border border-dark-muted overflow-hidden cursor-pointer size-full">
           {post.image_url ? (
             <img
@@ -25,6 +28,7 @@ const GridPostCard = ({ post }: GridPostCardProps) => {
           )}
         </div>
 
+        {/* Overlay with author info and post stats */}
         <div className="flex items-center justify-between absolute bottom-0 p-4 w-full rounded-b-xl border-b border-r border-l border-dark-muted gap-2 bg-gradient-to-t from-dark-primary to-transparent">
           <div className="flex items-center justify-center gap-3">
             <img

@@ -5,24 +5,25 @@ import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface FollowButtonProps {
-  followeeId: string
-  isFollowing: boolean
+  followeeId: string // ID of the user to be followed/unfollowed
+  isFollowing: boolean // Initial state indicating if the current user is following the followee
 }
 
 const FollowButton = ({
   followeeId,
   isFollowing: initialIsFollowing,
 }: FollowButtonProps) => {
-  const { user } = useUserContext()
-  const followerId = user?.id
+  const { user } = useUserContext() // Get the current user context
+  const followerId = user?.id // Current user's ID
 
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing) // Local state for follow status
 
   const { mutateAsync: followUser, isPending: isFollowLoading } =
-    useFollowUser()
+    useFollowUser() // Mutation for following a user
   const { mutateAsync: unFollowUser, isPending: isUnfollowLoading } =
-    useUnfollowUser()
+    useUnfollowUser() // Mutation for unfollowing a user
 
+  // Handle follow action
   const handleFollow = async () => {
     setIsFollowing(true)
     try {
@@ -31,10 +32,11 @@ const FollowButton = ({
         followeeId,
       })
     } catch (error) {
-      setIsFollowing(false)
+      setIsFollowing(false) // Revert state on error
     }
   }
 
+  // Handle unfollow action
   const handleUnfollow = async () => {
     setIsFollowing(false)
     try {
@@ -43,11 +45,12 @@ const FollowButton = ({
         followeeId,
       })
     } catch (error) {
-      setIsFollowing(true)
+      setIsFollowing(true) // Revert state on error
     }
   }
 
   return isFollowLoading || isUnfollowLoading ? (
+    // Show loading state while mutation is in progress
     <Button className="bg-dark-muted/50 !border-none !outline-none flex items-center justify-center gap-1">
       <p className="text-light-secondary font-semibold">
         {isFollowing ? 'Following...' : 'Unfollowing...'}
@@ -55,6 +58,7 @@ const FollowButton = ({
       <Loader2 size={20} className="animate-spin" />
     </Button>
   ) : (
+    // Render the follow/unfollow button
     <Button
       onClick={isFollowing ? handleUnfollow : handleFollow}
       className={`${

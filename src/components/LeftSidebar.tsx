@@ -6,34 +6,37 @@ import { useLogout } from '@/react-query/mutations'
 import { useToast } from '@/hooks/use-toast'
 
 const LeftSidebar = () => {
-  const { user } = useUserContext()
-  const { pathname } = useLocation()
-  const { mutateAsync: logout } = useLogout()
-  const { toast } = useToast()
+  const { user } = useUserContext() // Get the logged-in user's data
+  const { pathname } = useLocation() // Get the current route
+  const { mutateAsync: logout } = useLogout() // Mutation for logging out
+  const { toast } = useToast() // Toast notifications for feedback
 
+  // Handle logout action
   const handleLogout = async () => {
     try {
       const { success, message } = await logout()
       if (success) {
-        toast({ description: message })
+        toast({ description: message }) // Show success message
       }
     } catch (error) {
       console.error('Error logging out: ', error)
-      toast({ variant: 'destructive', description: 'Failed to log out' })
+      toast({ variant: 'destructive', description: 'Failed to log out' }) // Show error message
     }
   }
 
   return (
     <nav className="hidden md:flex px-5 py-7 flex-col min-w-[270px] h-screen bg-dark-secondary sticky top-0">
+      {/* App logo */}
       <Link to="/" className="w-fit flex items-center gap-2 pb-10 ml-2">
         <Logo type="icon" className="h-8" />
         <Logo type="text" className="h-6" />
       </Link>
 
       <div className="flex flex-col justify-between h-full">
+        {/* Navigation links */}
         <ul className="flex flex-col gap-6">
           {navLinks.map((link: NavLink) => {
-            const isActive = pathname === link.route
+            const isActive = pathname === link.route // Highlight active link
 
             return (
               <li
@@ -62,6 +65,7 @@ const LeftSidebar = () => {
           })}
         </ul>
 
+        {/* User info and logout */}
         <div className="flex items-center justify-between">
           <Link to={`/profile/${user?.id}`} className="flex items-center gap-3">
             <img

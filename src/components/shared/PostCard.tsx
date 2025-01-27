@@ -15,24 +15,25 @@ import { useToast } from '@/hooks/use-toast'
 import { useState } from 'react'
 
 interface PostCardProps {
-  post: Post
+  post: Post // Props for the post data
 }
 
 const PostCard = ({ post }: PostCardProps) => {
-  const { user } = useUserContext()
-  const { mutateAsync: deletePost } = useDeletePost()
-  const { toast } = useToast()
+  const { user } = useUserContext() // Access current user data
+  const { mutateAsync: deletePost } = useDeletePost() // Mutation for deleting a post
+  const { toast } = useToast() // Toast notifications
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false) // State to control the delete confirmation dialog
 
+  // Handle deleting a post
   const handleDeletePost = async () => {
     try {
-      await deletePost(post?.id)
+      await deletePost(post?.id) // Delete post by ID
       toast({
         title: 'Post deleted successfully.',
         description: 'Your post has been deleted.',
       })
-      setDeleteDialogOpen(false)
+      setDeleteDialogOpen(false) // Close the dialog
     } catch (error) {
       console.error('Failed to delete post:', error)
       toast({
@@ -43,12 +44,14 @@ const PostCard = ({ post }: PostCardProps) => {
     }
   }
 
-  if (!post) return null
+  if (!post) return null // Render nothing if the post is undefined
 
   return (
     <div className="bg-dark-secondary rounded-xl border border-dark-muted p-3 lg:p-7 w-full max-w-screen-md flex flex-col gap-3">
+      {/* Header: User info, mentions, and timestamp */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          {/* Author avatar */}
           <Link to={`/profile/${post?.author?.id}`}>
             <img
               src={
@@ -61,12 +64,14 @@ const PostCard = ({ post }: PostCardProps) => {
           </Link>
 
           <div className="flex items-center gap-1">
+            {/* Author username */}
             <Link to={`/profile/${post?.author?.id}`}>
               <p className="font-medium text-sm lg:text-base lg:font-bold text-light-primary hover:underline">
                 {post?.author?.username}
               </p>
             </Link>
 
+            {/* Mentioned users */}
             {post?.mentionedUsers?.length > 0 && (
               <div className="flex items-center gap-1">
                 <p className="font-medium text-xs lg:text-sm lg:font-bold text-light-secondary">
@@ -83,7 +88,7 @@ const PostCard = ({ post }: PostCardProps) => {
                     <DialogTitle className="text-light-primary">
                       Mentioned in this post
                     </DialogTitle>
-                    <DialogDescription className="hidden"></DialogDescription>
+                    {/* Mentioned users list */}
                     <ul className="flex flex-col gap-2 mt-4 shadow-lg h-full overflow-auto scrollbar-styled">
                       {post?.mentionedUsers?.map((user: User) => (
                         <div
@@ -111,6 +116,7 @@ const PostCard = ({ post }: PostCardProps) => {
               </div>
             )}
 
+            {/* Post timestamp */}
             <div className="flex items-center gap-1 text-light-muted">
               <p className="text-xs">&bull;</p>
               <p className="font-semibold text-xs lg:text-sm">
@@ -120,6 +126,7 @@ const PostCard = ({ post }: PostCardProps) => {
           </div>
         </div>
 
+        {/* Delete post dialog trigger (visible only for the post author) */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogTrigger className="p-0 !border-none !outline-none">
             <div
@@ -134,6 +141,7 @@ const PostCard = ({ post }: PostCardProps) => {
               />
             </div>
           </DialogTrigger>
+          {/* Delete confirmation dialog */}
           <DialogContent className="bg-dark-primary border-dark-muted rounded-md w-[90vw]">
             <DialogTitle className="text-light-primary">
               Are you sure?
@@ -162,10 +170,11 @@ const PostCard = ({ post }: PostCardProps) => {
         </Dialog>
       </div>
 
+      {/* Post content and image */}
       <PostPopup post={post}>
         <div className="flex flex-col gap-4">
           <p className="text-light-primary text-start text-sm lg:text-base">
-            {truncateText(post?.content, 150)}
+            {truncateText(post?.content, 150)} {/* Truncated post content */}
           </p>
           {post.image_url && (
             <img
@@ -176,6 +185,7 @@ const PostCard = ({ post }: PostCardProps) => {
         </div>
       </PostPopup>
 
+      {/* Post stats (likes, comments, etc.) */}
       <PostStats post={post} userId={user?.id} />
     </div>
   )

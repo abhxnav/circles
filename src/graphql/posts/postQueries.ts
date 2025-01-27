@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+// Fetch recent posts with pagination, including details like content, image, author info, and mentions
 export const FETCH_RECENT_POSTS = gql`
   query FetchRecentPosts($cursor: String, $limit: Int!) {
     postsCollection(
@@ -37,6 +38,7 @@ export const FETCH_RECENT_POSTS = gql`
   }
 `
 
+// Fetch user details for a list of user IDs
 export const FETCH_USERS_BY_IDS = gql`
   query FetchUsersByIds($userIds: [UUID!]!) {
     usersCollection(filter: { id: { in: $userIds } }) {
@@ -52,6 +54,7 @@ export const FETCH_USERS_BY_IDS = gql`
   }
 `
 
+// Fetch all likes for a specific post
 export const FETCH_LIKES_FOR_POST = gql`
   query FetchLikesForPost($postId: UUID!) {
     postsCollection(filter: { id: { eq: $postId } }) {
@@ -78,6 +81,7 @@ export const FETCH_LIKES_FOR_POST = gql`
   }
 `
 
+// Fetch popular posts within a specific time period
 export const FETCH_POPULAR_POSTS = gql`
   query FetchPopularPosts($date: Date!, $cursor: String, $limit: Int!) {
     postsCollection(
@@ -115,6 +119,7 @@ export const FETCH_POPULAR_POSTS = gql`
   }
 `
 
+// Search posts based on content with pagination
 export const SEARCH_POSTS = gql`
   query SearchPosts($searchTerm: String!, $cursor: String, $limit: Int!) {
     postsCollection(
@@ -152,6 +157,7 @@ export const SEARCH_POSTS = gql`
   }
 `
 
+// Fetch all posts by a specific user with pagination
 export const FETCH_USER_POSTS = gql`
   query FetchUserPosts($authorId: UUID!, $cursor: String, $limit: Int!) {
     postsCollection(

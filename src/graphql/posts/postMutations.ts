@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+// Mutation to create a new post
 export const CREATE_POST = gql`
   mutation CreatePost($postInput: postsInsertInput!) {
     insertIntopostsCollection(objects: [$postInput]) {
@@ -13,6 +14,7 @@ export const CREATE_POST = gql`
   }
 `
 
+// Mutation to add mentions for a post
 export const CREATE_MENTIONS = gql`
   mutation CreateMentions($mentions: [mentionsInsertInput!]!) {
     insertIntomentionsCollection(objects: $mentions) {
@@ -24,6 +26,7 @@ export const CREATE_MENTIONS = gql`
   }
 `
 
+// Mutation to delete a post based on a filter
 export const DELETE_POST = gql`
   mutation DeletePost($filter: postsFilter!) {
     deleteFrompostsCollection(filter: $filter) {
@@ -32,6 +35,7 @@ export const DELETE_POST = gql`
   }
 `
 
+// Mutation to like a post
 export const LIKE_POST = gql`
   mutation LikePost($likeInput: likesInsertInput!) {
     insertIntolikesCollection(objects: [$likeInput]) {
@@ -44,6 +48,7 @@ export const LIKE_POST = gql`
   }
 `
 
+// Mutation to unlike a post
 export const UNLIKE_POST = gql`
   mutation UnlikePost($filter: likesFilter!) {
     deleteFromlikesCollection(filter: $filter) {

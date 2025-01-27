@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+// Mutation to follow a user
 export const FOLLOW_USER = gql`
   mutation FollowUser($followerId: UUID!, $followeeId: UUID!) {
     insertIntofollowsCollection(
@@ -10,6 +11,7 @@ export const FOLLOW_USER = gql`
   }
 `
 
+// Mutation to unfollow a user
 export const UNFOLLOW_USER = gql`
   mutation UnfollowUser($followerId: UUID!, $followeeId: UUID!) {
     deleteFromfollowsCollection(
@@ -23,6 +25,7 @@ export const UNFOLLOW_USER = gql`
   }
 `
 
+// Query to check if the current user is following another user
 export const IS_FOLLOWING = gql`
   query IsFollowing($followerId: UUID!, $followeeId: UUID!) {
     followsCollection(

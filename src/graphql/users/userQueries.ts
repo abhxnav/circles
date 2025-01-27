@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+// Fetch a list of random users excluding the current user
 export const FETCH_RANDOM_USERS = gql`
   query FetchRandomUsers($userId: UUID!, $cursor: String, $limit: Int!) {
     usersCollection(
@@ -32,6 +33,7 @@ export const FETCH_RANDOM_USERS = gql`
   }
 `
 
+// Search for users based on their username or name
 export const SEARCH_USERS = gql`
   query SearchUsers($searchTerm: String!, $cursor: String, $limit: Int!) {
     usersCollection(
@@ -66,6 +68,7 @@ export const SEARCH_USERS = gql`
   }
 `
 
+// Fetch detailed information about a user including their posts and follows
 export const FETCH_USER_DETAILS = gql`
   query FetchUserDetails($userId: UUID!) {
     usersCollection(filter: { id: { eq: $userId } }) {
@@ -102,6 +105,7 @@ export const FETCH_USER_DETAILS = gql`
   }
 `
 
+// Fetch the total number of posts for a user
 export const FETCH_POSTS_COUNT = gql`
   query FetchPostsCount($authorId: UUID!, $cursor: String) {
     postsCollection(filter: { author_id: { eq: $authorId } }, after: $cursor) {

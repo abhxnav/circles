@@ -3,11 +3,12 @@ import { generateAvatar } from '@/lib/utils'
 import { SigninFormSchema, SignupFormSchema } from '@/lib/validations'
 import { z } from 'zod'
 
+// Signs up a new user after checking for unique username and email
 export const signUpUser = async (values: z.infer<typeof SignupFormSchema>) => {
-  const { name, username, email, password } = values // destructure individual values from values object
+  const { name, username, email, password } = values
 
   try {
-    // Check if the username is available
+    // Check if the username already exists
     const { data: existingUsername, error: usernameError } = await supabase
       .from('users')
       .select('username')
@@ -33,44 +34,38 @@ export const signUpUser = async (values: z.infer<typeof SignupFormSchema>) => {
       throw new Error(emailError.message)
     }
 
-    // Sign up user in Supabase Auth
+    // Sign up the user in Supabase Auth
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { name, username },
-      },
+      options: { data: { name, username } },
     })
 
-    if (signUpError) {
-      throw new Error(signUpError.message)
-    }
+    if (signUpError) throw new Error(signUpError.message)
 
     return {
       success: true,
-      message: `We have sent a verification email to ${email}. Verify your email to continue...`,
+      message: `Verification email sent to ${email}. Verify your email to continue.`,
     }
   } catch (error: any) {
-    return {
-      success: false,
-      message: error.message || 'An error occurred during signup.',
-    }
+    return { success: false, message: error.message || 'Signup failed.' }
   }
 }
 
+// Adds a new user's profile to the database if not already present
 export const addUserToDatabase = async () => {
   try {
-    // Get authenticated user
+    // Retrieve the current session
     const {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession()
     if (sessionError || !session?.user)
-      throw new Error('User is not authenticated')
+      throw new Error('User not authenticated.')
 
     const user = session.user
 
-    // Check if user already exists in the database
+    // Check if the user is already in the database
     const { data: existingUser, error: fetchError } = await supabase
       .from('users')
       .select('*')
@@ -78,7 +73,7 @@ export const addUserToDatabase = async () => {
       .single()
 
     // If user exists, skip insertion
-    if (existingUser) return { success: true, message: 'User already exists' }
+    if (existingUser) return { success: true, message: 'User already exists.' }
     if (fetchError && fetchError.code !== 'PGRST116') {
       throw new Error(fetchError.message)
     }
@@ -101,13 +96,14 @@ export const addUserToDatabase = async () => {
 
     const defaultAvatar =
       'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' // default avatar if upload fails
+
     const {
       data: { publicUrl },
     } = supabase.storage.from('avatars').getPublicUrl(avatarFileName)
 
     const avatarUrl = uploadError ? defaultAvatar : publicUrl
 
-    // Insert user into 'users' table
+    // Insert user details into the 'users' table
     const { error: insertError } = await supabase.from('users').insert({
       id: user.id,
       name,
@@ -123,11 +119,12 @@ export const addUserToDatabase = async () => {
   }
 }
 
+// Logs in a user by verifying their credentials
 export const login = async (values: z.infer<typeof SigninFormSchema>) => {
   const { username, password } = values
 
   try {
-    // Retreive the email associated with the username
+    // Retrieve the email associated with the username
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('email')
@@ -141,11 +138,9 @@ export const login = async (values: z.infer<typeof SigninFormSchema>) => {
       throw new Error(userError.message)
     }
 
-    const email = user.email
-
-    // Authenticate the user using email ans password
+    // Authenticate user with email and password
     const { error: loginError } = await supabase.auth.signInWithPassword({
-      email,
+      email: user.email,
       password,
     })
 
@@ -154,23 +149,21 @@ export const login = async (values: z.infer<typeof SigninFormSchema>) => {
 
     return { success: true, message: `Logged in successfully as ${username}` }
   } catch (error: any) {
-    return {
-      success: false,
-      message: error.message || 'An error occurred during login.',
-    }
+    return { success: false, message: error.message || 'Login failed.' }
   }
 }
 
+// Fetches the currently authenticated user's details
 export const getCurrentUser = async () => {
   try {
-    // Get currently logged in user from Auth
+    // Get user details from Auth
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser()
     if (error) throw new Error(error.message)
 
-    // Get currently logges in user's details from database
+    // Retrieve user details from the database
     const { data: currentUser, error: fetchError } = await supabase
       .from('users')
       .select('*')
@@ -178,16 +171,13 @@ export const getCurrentUser = async () => {
       .single()
     if (fetchError) throw new Error(fetchError.message)
 
-    return {
-      success: true,
-      message: 'User fetched successfully',
-      currentUser,
-    }
+    return { success: true, message: 'User fetched successfully.', currentUser }
   } catch (error: any) {
     return { success: false, message: error.message }
   }
 }
 
+// Logs out the currently authenticated user
 export const logout = async () => {
   try {
     const { error } = await supabase.auth.signOut()

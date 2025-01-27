@@ -12,12 +12,15 @@ import client from '@/graphql/client'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
+      {/* Provides React Query context */}
       <QueryProvider>
+        {/* Handles global user state and authentication */}
         <UserProvider>
+          {/* Apollo client for GraphQL */}
           <ApolloProvider client={client}>
-            <App />
+            <App /> {/* Main application */}
           </ApolloProvider>
-          <Toaster />
+          <Toaster /> {/* Toast notifications */}
         </UserProvider>
       </QueryProvider>
     </BrowserRouter>

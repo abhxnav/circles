@@ -20,32 +20,35 @@ import { useSearchUsers } from '@/react-query/queries'
 import { Loader2 } from 'lucide-react'
 
 interface CustomFormFieldProps<T extends FieldValues> {
-  control: Control<T>
-  name: Path<T>
-  label?: string
-  placeholder?: string
-  fieldType: string
-  className?: string
-  labelClassName?: string
-  messageClassName?: string
-  post?: any
+  control: Control<T> // React Hook Form control object
+  name: Path<T> // Name of the field
+  label?: string // Optional label for the field
+  placeholder?: string // Optional placeholder text
+  fieldType: string // Type of the field (e.g., text, password, etc.)
+  className?: string // Additional CSS classes for styling
+  labelClassName?: string // CSS classes for the label
+  messageClassName?: string // CSS classes for the error message
+  post?: any // Optional post data for fields like file uploads
 }
 
+// Renders the appropriate input field based on the provided `fieldType`
 const RenderField = <T extends FieldValues>({
   field,
   props,
 }: {
-  field: ControllerRenderProps<T, Path<T>>
-  props: CustomFormFieldProps<T>
+  field: ControllerRenderProps<T, Path<T>> // Field object from React Hook Form
+  props: CustomFormFieldProps<T> // Field configuration props
 }) => {
   const { fieldType, placeholder, className, post } = props
 
-  const observerRef = useRef<HTMLDivElement>(null)
+  const observerRef = useRef<HTMLDivElement>(null) // Ref for intersection observer
 
+  // States for password visibility, search input, and query
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [inputValue, setInputValue] = useState('')
 
+  // Custom hook to fetch user mentions based on the search query
   const {
     data: searchedUsersData,
     isLoading,
@@ -53,9 +56,12 @@ const RenderField = <T extends FieldValues>({
     hasNextPage: hasSearchedNextPage,
     isFetchingNextPage: isFetchingSearchedNextPage,
   } = useSearchUsers(searchQuery)
+
+  // Flattening paginated data into a single array
   const searchResults =
     searchedUsersData?.pages.flatMap((page: any) => page.users) || []
 
+  // Debounce search input to avoid making too many API calls
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       setSearchQuery(inputValue)
@@ -64,12 +70,14 @@ const RenderField = <T extends FieldValues>({
     return () => clearTimeout(debounceTimeout)
   }, [inputValue])
 
+  // Fetches the next page of search results when needed
   const fetchNextPage = () => {
     if (hasSearchedNextPage) {
       fetchSearchedNextPage()
     }
   }
 
+  // Set up an intersection observer to trigger fetch when the user scrolls to the bottom
   useEffect(() => {
     if (!observerRef.current) return
 
@@ -79,7 +87,7 @@ const RenderField = <T extends FieldValues>({
           fetchNextPage()
         }
       },
-      { threshold: 1 }
+      { threshold: 1 } // Trigger when the element is fully visible
     )
 
     observer.observe(observerRef.current)
@@ -87,11 +95,13 @@ const RenderField = <T extends FieldValues>({
     return () => observer.disconnect()
   }, [observerRef.current, hasSearchedNextPage])
 
+  // Toggles visibility of password field
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible)
 
+  // Render field based on `fieldType`
   switch (fieldType) {
-    case 'text':
+    case 'text': // Render a text input
       return (
         <FormControl>
           <Input
@@ -105,7 +115,7 @@ const RenderField = <T extends FieldValues>({
         </FormControl>
       )
 
-    case 'textarea':
+    case 'textarea': // Render a textarea
       return (
         <FormControl>
           <Textarea
@@ -119,7 +129,7 @@ const RenderField = <T extends FieldValues>({
         </FormControl>
       )
 
-    case 'password':
+    case 'password': // Render a password input with toggle visibility
       return (
         <FormControl>
           <div className="relative">
@@ -151,7 +161,7 @@ const RenderField = <T extends FieldValues>({
         </FormControl>
       )
 
-    case 'file':
+    case 'file': // Render a file uploader
       return (
         <FormControl>
           <FileUploader
@@ -161,12 +171,12 @@ const RenderField = <T extends FieldValues>({
         </FormControl>
       )
 
-    case 'mentions':
+    case 'mentions': // Render a mention search with list and selected users
       return (
         <FormControl>
           <div className="flex flex-col gap-5">
             <div className="text-light-primary">
-              {/* Search Bar */}
+              {/* Input field for search */}
               <Input
                 placeholder="Search"
                 value={inputValue}
@@ -177,7 +187,7 @@ const RenderField = <T extends FieldValues>({
                 )}
               />
 
-              {/* Mentioned Users */}
+              {/* Display selected mentioned users */}
               <div className="flex items-center gap-2 mt-4 border border-dark-secondary rounded-md p-2 h-16 overflow-x-scroll scrollbar-styled">
                 {field.value.length > 0 ? (
                   field.value.map((user: User) => (
@@ -185,16 +195,14 @@ const RenderField = <T extends FieldValues>({
                       key={user.id}
                       className="flex items-center gap-2 bg-dark-secondary p-2 rounded-md min-w-fit"
                     >
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={user?.avatar_url}
-                          alt={user?.username}
-                          className="size-5 rounded-full"
-                        />
-                        <p className="text-xs text-light-muted leading-none">
-                          @{user?.username}
-                        </p>
-                      </div>
+                      <img
+                        src={user?.avatar_url}
+                        alt={user?.username}
+                        className="size-5 rounded-full"
+                      />
+                      <p className="text-xs text-light-muted leading-none">
+                        @{user?.username}
+                      </p>
                       <img
                         src="/assets/icons/remove.svg"
                         alt="x"
@@ -214,12 +222,12 @@ const RenderField = <T extends FieldValues>({
                 )}
               </div>
 
-              {/* Search List */}
+              {/* Render search results */}
               {isLoading ? (
                 <MentionSearchListSkeleton />
               ) : (
                 <div className="flex flex-col gap-2 mt-4 shadow-lg h-60 overflow-auto scrollbar-styled">
-                  {searchResults && searchResults?.length > 0 ? (
+                  {searchResults?.length > 0 ? (
                     searchResults.map((user: User) => (
                       <>
                         <div
@@ -229,7 +237,7 @@ const RenderField = <T extends FieldValues>({
                               (u: User) => u.id
                             )
                             if (!mentionedUsers.includes(user.id)) {
-                              field.onChange([...field.value, user]) // Append to mentions
+                              field.onChange([...field.value, user])
                             }
                           }}
                           className="flex items-center gap-3 cursor-pointer rounded-md bg-dark-secondary p-4 hover:opacity-70"
@@ -274,6 +282,7 @@ const RenderField = <T extends FieldValues>({
   }
 }
 
+// Main component that renders the field based on its configuration
 const CustomFormField = <T extends FieldValues>(
   props: CustomFormFieldProps<T>
 ) => {
@@ -285,9 +294,11 @@ const CustomFormField = <T extends FieldValues>(
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className={clsx('text-light-secondary', labelClassName)}>
-            {label}
-          </FormLabel>
+          {label && (
+            <FormLabel className={clsx('text-light-secondary', labelClassName)}>
+              {label}
+            </FormLabel>
+          )}
           <RenderField field={field} props={props} />
           <FormMessage className={clsx(messageClassName)} />
         </FormItem>

@@ -5,25 +5,27 @@ import { useLogout } from '@/react-query/mutations'
 import { useUserContext } from '@/context/UserContext'
 
 const TopBar = () => {
-  const { toast } = useToast()
-  const { mutateAsync: logout } = useLogout()
-  const { user } = useUserContext()
+  const { toast } = useToast() // Toast notifications for feedback
+  const { mutateAsync: logout } = useLogout() // Mutation for logging out
+  const { user } = useUserContext() // Get the logged-in user's data
 
+  // Handle logout action
   const handleLogout = async () => {
     try {
       const { success, message } = await logout()
       if (success) {
-        toast({ description: message })
+        toast({ description: message }) // Show success message
       }
     } catch (error) {
       console.error('Error logging out: ', error)
-      toast({ variant: 'destructive', description: 'Failed to log out' })
+      toast({ variant: 'destructive', description: 'Failed to log out' }) // Show error message
     }
   }
 
   return (
     <section className="sticky top-0 z-50 md:hidden bg-transparent w-full">
       <div className="flex items-center justify-between py-4 px-5 bg-dark-primary">
+        {/* App logo */}
         <Link to="/" className="flex gap-3 items-center">
           <div className="flex items-center gap-1">
             <Logo type="icon" className="h-5" />
@@ -31,6 +33,7 @@ const TopBar = () => {
           </div>
         </Link>
 
+        {/* Logout and user profile */}
         <div className="flex gap-4 items-center">
           <div className="cursor-pointer" onClick={handleLogout}>
             <img

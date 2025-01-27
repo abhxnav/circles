@@ -27,6 +27,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const PostForm = ({ post }: { post: Post | null }) => {
+  const { toast } = useToast() // Toast notifications
+  const { user } = useUserContext() // Logged-in user's data
+  const navigate = useNavigate() // Navigation
+
+  // Mutations for creating posts, mentions, and deleting posts
   const {
     mutateAsync: createPost,
     isPending: postLoading,
@@ -38,12 +43,10 @@ const PostForm = ({ post }: { post: Post | null }) => {
     error: mentionError,
   } = useCreateMentions()
   const { mutateAsync: deletePost } = useDeletePost()
-  const { toast } = useToast()
-  const { user } = useUserContext()
-  const navigate = useNavigate()
 
-  const [uploadLoading, setUploadLoading] = useState(false)
+  const [uploadLoading, setUploadLoading] = useState(false) // Upload loading state
 
+  // React Hook Form setup with Zod validation schema
   const form = useForm<z.infer<typeof PostFormSchema>>({
     resolver: zodResolver(PostFormSchema),
     defaultValues: {
@@ -53,6 +56,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
     },
   })
 
+  // Handle form submission
   const onSubmit = async (values: z.infer<typeof PostFormSchema>) => {
     let uploadedFilePath: string | undefined
     let postId: string | undefined
@@ -60,6 +64,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
     try {
       let imageUrl: string | undefined = values.image as string
 
+      // Upload image to Supabase if it's a new file
       if (Array.isArray(values.image) && values.image[0] instanceof File) {
         setUploadLoading(true)
 
@@ -70,48 +75,48 @@ const PostForm = ({ post }: { post: Post | null }) => {
         } = await uploadFileToSupabase(values.image[0])
 
         if (!success || !uploadedUrl) throw new Error(message)
+
         imageUrl = uploadedUrl
         uploadedFilePath = values.image[0].name
         setUploadLoading(false)
       }
 
+      // Prepare post input data
       const postInput = {
         content: values.caption,
         image_url: imageUrl,
         author_id: user.id,
       }
 
+      // Create post
       const postData = await createPost({ postInput })
-
       if (postError) throw new Error(postError.message)
 
+      // Extract post ID
       postId = postData.insertIntopostsCollection.records[0].id
+
+      // Create mentions if users are mentioned
       const mentionedUsersId = values.mentions?.map((user) => user.id)
-
-      const mentionsInput = {
-        mentioned_users_id: mentionedUsersId,
-        post_id: postId,
-      }
-
       if (mentionedUsersId?.length) {
+        const mentionsInput = {
+          mentioned_users_id: mentionedUsersId,
+          post_id: postId,
+        }
         await createMentions({ mentions: [mentionsInput] })
+        if (mentionError) throw new Error(mentionError.message)
       }
 
-      if (mentionError) throw new Error(mentionError.message)
-
+      // Success feedback
       toast({ description: 'Post created successfully' })
-      navigate('/')
+      // navigate('/')
     } catch (error) {
       console.error('Error creating post:', error)
 
-      if (uploadedFilePath) {
-        await deleteFileFromSupabase(uploadedFilePath) // Delete uploaded file
-      }
+      // Rollback uploaded file or post if an error occurs
+      if (uploadedFilePath) await deleteFileFromSupabase(uploadedFilePath)
+      if (postId) await deletePost(postId)
 
-      if (postId) {
-        await deletePost(postId) // Delete the post
-      }
-
+      // Error feedback
       toast({ description: 'Failed to create post', variant: 'destructive' })
     }
   }
@@ -122,12 +127,15 @@ const PostForm = ({ post }: { post: Post | null }) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-9 w-full max-w-5xl"
       >
+        {/* Caption input field */}
         <CustomFormField
           control={form.control}
           fieldType="textarea"
           name="caption"
           label="Caption"
         />
+
+        {/* Image upload field */}
         <CustomFormField
           control={form.control}
           fieldType="file"
@@ -135,6 +143,8 @@ const PostForm = ({ post }: { post: Post | null }) => {
           label="Add image"
           post={post}
         />
+
+        {/* Mention people dialog */}
         <Dialog>
           <DialogTrigger className="flex items-center gap-2 w-fit border-none hover:opacity-70 py-2 px-4 bg-transparent">
             <img
@@ -160,6 +170,7 @@ const PostForm = ({ post }: { post: Post | null }) => {
           </DialogContent>
         </Dialog>
 
+        {/* Form action buttons */}
         <div className="flex gap-2 items-center justify-end">
           <Button
             type="button"

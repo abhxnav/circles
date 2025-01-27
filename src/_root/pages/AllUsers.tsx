@@ -6,13 +6,15 @@ import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 const AllUsers = () => {
-  const { user } = useUserContext()
-  const observerRef = useRef<HTMLDivElement>(null)
+  const { user } = useUserContext() // Get logged-in user context
+  const observerRef = useRef<HTMLDivElement>(null) // Ref for intersection observer
 
-  const [inputValue, setInputValue] = useState('') // Immediate input from user
-  const [searchValue, setSearchValue] = useState('') // Debounced value
-  const [showSearchResults, setShowSearchResults] = useState(false)
+  // Input states for search functionality
+  const [inputValue, setInputValue] = useState('') // Immediate input value
+  const [searchValue, setSearchValue] = useState('') // Debounced input value
+  const [showSearchResults, setShowSearchResults] = useState(false) // Toggle between suggested and searched users
 
+  // Fetch random suggested users
   const {
     data: suggestedUsersData,
     isLoading: isSuggestedUsersLoading,
@@ -20,9 +22,11 @@ const AllUsers = () => {
     hasNextPage: hasSuggestedNextPage,
     isFetchingNextPage: isFetchingSuggestedNextPage,
   } = useFetchRandomUsers(user?.id)
+
   const suggestedUsers =
     suggestedUsersData?.pages.flatMap((page: any) => page.users) || []
 
+  // Fetch searched users
   const {
     data: searchedUsersData,
     isLoading: isSearchedUsersLoading,
@@ -30,17 +34,16 @@ const AllUsers = () => {
     hasNextPage: hasSearchedNextPage,
     isFetchingNextPage: isFetchingSearchedNextPage,
   } = useSearchUsers(searchValue)
+
   const searchedUsers =
     searchedUsersData?.pages.flatMap((page: any) => page.users) || []
 
+  // Toggle search results based on search value
   useEffect(() => {
-    if (searchValue.length) {
-      setShowSearchResults(true)
-    } else {
-      setShowSearchResults(false)
-    }
+    setShowSearchResults(searchValue.length > 0)
   }, [searchValue])
 
+  // Debounce search input to avoid excessive requests
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       setSearchValue(inputValue.trim())
@@ -49,6 +52,7 @@ const AllUsers = () => {
     return () => clearTimeout(debounceTimeout)
   }, [inputValue])
 
+  // Infinite scrolling fetch logic
   const fetchNextPage = () => {
     if (showSearchResults && hasSearchedNextPage) {
       fetchSearchedNextPage()
@@ -57,6 +61,7 @@ const AllUsers = () => {
     }
   }
 
+  // Intersection observer for triggering infinite scrolling
   useEffect(() => {
     if (!observerRef.current) return
 
@@ -77,8 +82,10 @@ const AllUsers = () => {
   return (
     <div className="flex flex-col flex-1 items-center overflow-scroll py-4 px-4 md:py-8 md:px-8 lg:p-14 scrollbar-styled min-h-[calc(100vh-108px)]">
       <div className="max-w-screen-md flex flex-col items-center w-full gap-6 md:gap-9">
+        {/* Header */}
         <Header title="People" iconUrl="/assets/icons/people.svg" />
 
+        {/* Search Bar */}
         <div className="flex items-center justify-center gap-1 px-4 md:py-2 w-full rounded-lg bg-dark-secondary">
           <img
             src="/assets/icons/search.svg"
@@ -94,6 +101,7 @@ const AllUsers = () => {
           />
         </div>
 
+        {/* Display Suggested or Searched Users */}
         {!showSearchResults && (
           <h3 className="w-full max-w-5xl font-bold md:text-2xl text-light-primary">
             Suggested Users
