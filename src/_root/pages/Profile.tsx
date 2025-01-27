@@ -88,7 +88,7 @@ const Profile = () => {
         </div>
 
         {/* Follow/Unfollow Button */}
-        {userId !== user?.id && (
+        {userId !== user?.id && data && (
           <FollowButton followeeId={userId!} isFollowing={isFollowing} />
         )}
 
