@@ -1,14 +1,31 @@
+import { fetchFollowees } from '@/actions/posts.actions'
 import { Header, PostCard, PostCardSkeleton } from '@/components'
-import { useFetchRecentPosts } from '@/react-query/queries'
+import { useUserContext } from '@/context/UserContext'
+import { useFetchFollowedUsersPosts } from '@/react-query/queries'
 import { Loader2 } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const Home = () => {
+  const { user } = useUserContext()
   const observerRef = useRef<HTMLDivElement>(null) // Ref for infinite scrolling
 
-  // Fetch recent posts using a query
+  const [authorIds, setAuthorIds] = useState<string[]>([])
+
+  // Fetch the user's followees
+  useEffect(() => {
+    const getAuthorIds = async () => {
+      if (user.id) {
+        const followees = await fetchFollowees(user.id)
+        setAuthorIds([user.id, ...followees]) // Include the user's own ID
+      }
+    }
+
+    getAuthorIds()
+  }, [user.id])
+
+  // Fetch posts from followed users and the current user
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useFetchRecentPosts()
+    useFetchFollowedUsersPosts(authorIds)
 
   const posts = data?.pages.flatMap((page) => page.posts) || [] // Flatten paginated data
 
@@ -59,7 +76,7 @@ const Home = () => {
           />
 
           {/* Loading State: Show Skeletons */}
-          {isLoading && !posts.length ? (
+          {isLoading ? (
             <ul className="flex flex-col gap-5 lg:gap-7 w-full">
               {Array.from({ length: 3 }).map((_, index) => (
                 <li key={index}>
@@ -67,15 +84,19 @@ const Home = () => {
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : posts?.length > 0 ? (
             // Render Posts
             <ul className="flex flex-col flex-1 gap-5 lg:gap-7 w-full">
-              {posts.map((post: Post) => (
+              {posts?.map((post: Post) => (
                 <li key={post.id} className="text-light-primary">
                   <PostCard post={post} />
                 </li>
               ))}
             </ul>
+          ) : (
+            <p className="text-light-muted text-center text-sm w-full">
+              Follow someone to see their posts
+            </p>
           )}
 
           {/* Infinite Scrolling Trigger */}

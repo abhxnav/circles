@@ -9,4 +9,6 @@ export enum QUERY_KEYS {
   IS_FOLLOWING = 'isFollowing',
   FETCH_USER_DETAILS = 'userDetails',
   USER_POSTS = 'userPosts',
+  FOLLOWED_USERS_POSTS = 'followedUsersPosts',
+  GET_FOLLOWEES = 'followees',
 }

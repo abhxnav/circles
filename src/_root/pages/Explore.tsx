@@ -1,6 +1,11 @@
+import { fetchRecentPosts } from '@/actions/posts.actions'
 import { GridPostList, Header, SearchPostsSkeleton } from '@/components'
 import { Input } from '@/components/ui'
-import { useFetchPopularPosts, useSearchPosts } from '@/react-query/queries'
+import {
+  useFetchPopularPosts,
+  useFetchRecentPosts,
+  useSearchPosts,
+} from '@/react-query/queries'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -14,15 +19,14 @@ const Explore = () => {
 
   // Fetch popular posts
   const {
-    data: popularPostsData,
-    isLoading: isPopularPostLoading,
-    fetchNextPage: fetchPopularNextPage,
-    hasNextPage: hasPopularNextPage,
-    isFetchingNextPage: isFetchingPopularNextPage,
-  } = useFetchPopularPosts()
+    data: recentPostsData,
+    isLoading: isRecentPostLoading,
+    fetchNextPage: fetchRecentNextPage,
+    hasNextPage: hasRecentNextPage,
+    isFetchingNextPage: isFetchingRecentNextPage,
+  } = useFetchRecentPosts()
 
-  const popularPosts =
-    popularPostsData?.pages.flatMap((page) => page.posts) || []
+  const recentPosts = recentPostsData?.pages.flatMap((page) => page.posts) || []
 
   // Fetch searched posts
   const {
@@ -54,8 +58,8 @@ const Explore = () => {
   const fetchNextPage = () => {
     if (showSearchResults && hasSearchNextPage) {
       fetchSearchedNextPage()
-    } else if (!showSearchResults && hasPopularNextPage) {
-      fetchPopularNextPage()
+    } else if (!showSearchResults && hasRecentNextPage) {
+      fetchRecentNextPage()
     }
   }
 
@@ -75,7 +79,7 @@ const Explore = () => {
     observer.observe(observerRef.current)
 
     return () => observer.disconnect()
-  }, [observerRef.current, hasSearchNextPage, hasPopularNextPage])
+  }, [observerRef.current, hasSearchNextPage, hasRecentNextPage])
 
   return (
     <div className="flex flex-col flex-1 items-center overflow-scroll py-4 px-4 md:py-8 md:px-8 lg:p-14 scrollbar-styled min-h-[calc(100vh-108px)]">
@@ -107,7 +111,7 @@ const Explore = () => {
         )}
 
         <div className="flex flex-wrap gap-9 w-full max-w-5xl">
-          {isPopularPostLoading || isSearchPostLoading ? (
+          {isRecentPostLoading || isSearchPostLoading ? (
             <SearchPostsSkeleton />
           ) : showSearchResults ? (
             searchedPosts?.length > 0 ? (
@@ -128,11 +132,11 @@ const Explore = () => {
                 No posts found
               </p>
             )
-          ) : popularPosts?.length > 0 ? (
+          ) : recentPosts?.length > 0 ? (
             <>
-              <GridPostList posts={popularPosts} />
-              {hasPopularNextPage && <div ref={observerRef} className="h-10" />}
-              {isFetchingPopularNextPage && (
+              <GridPostList posts={recentPosts} />
+              {hasRecentNextPage && <div ref={observerRef} className="h-10" />}
+              {isFetchingRecentNextPage && (
                 <div className="flex items-center justify-center w-full">
                   <Loader2
                     size={40}

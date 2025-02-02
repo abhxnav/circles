@@ -38,6 +38,60 @@ export const FETCH_RECENT_POSTS = gql`
   }
 `
 
+export const FETCH_FOLLOWED_USERS_POSTS = gql`
+  query FetchFollowedUsersPosts(
+    $authorIds: [UUID!]
+    $cursor: String
+    $limit: Int!
+  ) {
+    postsCollection(
+      filter: { author_id: { in: $authorIds } }
+      orderBy: [{ created_at: DescNullsLast }]
+      first: $limit
+      after: $cursor
+    ) {
+      edges {
+        node {
+          id
+          content
+          image_url
+          author_id
+          created_at
+          users {
+            id
+            name
+            username
+            avatar_url
+          }
+          mentionsCollection {
+            edges {
+              node {
+                mentioned_users_id
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`
+
+export const FETCH_FOLLOWEES = gql`
+  query FetchFollowees($followerId: UUID!) {
+    followsCollection(filter: { follower_id: { eq: $followerId } }) {
+      edges {
+        node {
+          followee_id
+        }
+      }
+    }
+  }
+`
+
 // Fetch user details for a list of user IDs
 export const FETCH_USERS_BY_IDS = gql`
   query FetchUsersByIds($userIds: [UUID!]!) {

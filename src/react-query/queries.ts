@@ -1,4 +1,6 @@
 import {
+  fetchFollowedUsersPosts,
+  fetchFollowees,
   fetchPopularPosts,
   fetchRecentPosts,
   fetchUserPosts,
@@ -32,6 +34,18 @@ export const useFetchPopularPosts = () => {
     queryFn: fetchPopularPosts, // Function to fetch popular posts.
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.nextCursor : undefined, // Determines the next page parameter.
+    initialPageParam: null,
+  })
+}
+
+export const useFetchFollowedUsersPosts = (authorIds: string[]) => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.FOLLOWED_USERS_POSTS, authorIds],
+    queryFn: ({ pageParam }) =>
+      fetchFollowedUsersPosts({ authorIds, pageParam }),
+    getNextPageParam: (lastPage: any) =>
+      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
+    enabled: authorIds.length > 0, // Only run if we have author IDs
     initialPageParam: null,
   })
 }

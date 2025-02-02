@@ -5,6 +5,8 @@ import {
   DELETE_POST,
 } from '@/graphql/posts/postMutations'
 import {
+  FETCH_FOLLOWED_USERS_POSTS,
+  FETCH_FOLLOWEES,
   FETCH_LIKES_FOR_POST,
   FETCH_POPULAR_POSTS,
   FETCH_RECENT_POSTS,
@@ -245,5 +247,44 @@ export const fetchUserPosts = async ({
     posts,
     nextCursor: data?.postsCollection?.pageInfo?.endCursor,
     hasNextPage: data?.postsCollection?.pageInfo?.hasNextPage,
+  }
+}
+
+export const fetchFollowees = async (followerId: string) => {
+  const { data } = await gqlClient.query({
+    query: FETCH_FOLLOWEES,
+    variables: { followerId },
+  })
+
+  const edges = data?.followsCollection?.edges || []
+  return edges.map((edge: any) => edge.node.followee_id) || []
+}
+
+export const fetchFollowedUsersPosts = async ({
+  authorIds,
+  pageParam = null,
+  limit = 10,
+}: {
+  authorIds: string[]
+  pageParam?: any
+  limit?: number
+}) => {
+  const { data } = await gqlClient.query({
+    query: FETCH_FOLLOWED_USERS_POSTS,
+    variables: {
+      authorIds,
+      cursor: pageParam,
+      limit,
+    },
+  })
+
+  const edges = data?.postsCollection?.edges || []
+  const posts = await processPosts(edges)
+  const pageInfo = data?.postsCollection?.pageInfo
+
+  return {
+    posts,
+    nextCursor: pageInfo?.endCursor,
+    hasNextPage: pageInfo?.hasNextPage,
   }
 }
